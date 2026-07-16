@@ -28,7 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-        Optional<String> tokenOpt =  cookieService.extractAccessToken(request);
+        Optional<String> tokenOpt = cookieService.extractAccessToken(request);
 
         if (tokenOpt.isEmpty()) {
             filterChain.doFilter(request, response);

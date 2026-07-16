@@ -79,6 +79,11 @@ public class CookieServiceImpl implements CookieService {
             String cookieName
     ) {
         Cookie[] cookies = request.getCookies();
+
+        if (cookies == null) {
+            return Optional.empty();
+        }
+
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals(cookieName)) {
                 return Optional.of(cookie.getValue());

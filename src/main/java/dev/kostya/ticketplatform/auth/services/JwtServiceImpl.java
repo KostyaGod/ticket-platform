@@ -34,8 +34,8 @@ public class JwtServiceImpl implements JwtService {
     public String generateAccessToken(UserPrincipal userPrincipal, UUID sessionId) {
         return Jwts.builder()
                 .subject(String.valueOf(userPrincipal.getId()))
-                .claim("role", userPrincipal.getRole())
-                .claim("session", sessionId)
+                .claim("role", userPrincipal.getRole().name())
+                .claim("session", sessionId.toString())
                 .issuedAt(new Date())
                 .expiration(new Date(
                         System.currentTimeMillis() + properties.getAccessExpiration()
@@ -48,8 +48,8 @@ public class JwtServiceImpl implements JwtService {
     public String generateRefreshToken(UserPrincipal userPrincipal, UUID sessionId, UUID jti) {
         return Jwts.builder()
                 .subject(String.valueOf(userPrincipal.getId()))
-                .claim("jti", jti)
-                .claim("session", sessionId)
+                .claim("jti", jti.toString())
+                .claim("session", sessionId.toString())
                 .issuedAt(new Date())
                 .expiration(new Date(
                         System.currentTimeMillis() + properties.getRefreshExpiration()
@@ -94,26 +94,34 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public UUID extractSessionIdAccess(String token) {
-        return extractClaimsAccess(token)
-                .get("session", UUID.class);
+        return UUID.fromString(
+                extractClaimsAccess(token)
+                        .get("session", String.class)
+        );
     }
 
     @Override
     public UUID extractSessionIdRefresh(String token) {
-        return extractClaimsRefresh(token)
-                .get("session", UUID.class);
+        return UUID.fromString(
+                extractClaimsRefresh(token)
+                        .get("session", String.class)
+        );
     }
 
     @Override
     public Role extractRole(String token) {
-        return extractClaimsAccess(token)
-                .get("role", Role.class);
+        return Role.valueOf(
+                extractClaimsAccess(token)
+                        .get("role", String.class)
+        );
     }
 
     @Override
     public UUID extractJTI(String token) {
-        return extractClaimsAccess(token)
-                .get("jti", UUID.class);
+        return UUID.fromString(
+                extractClaimsRefresh(token)
+                        .get("jti", String.class)
+        );
     }
 
     private Claims extractClaimsAccess(String token) {

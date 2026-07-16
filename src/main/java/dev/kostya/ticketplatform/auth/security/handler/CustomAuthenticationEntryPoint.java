@@ -22,7 +22,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getWriter().write("""
                 {
-                    "status": 400,
+                    "status": 401,
                     "error": "Unauthorized",
                     "message": "Authentication required"
                 }

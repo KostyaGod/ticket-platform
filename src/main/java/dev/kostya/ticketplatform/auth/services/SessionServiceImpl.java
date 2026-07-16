@@ -27,7 +27,9 @@ public class SessionServiceImpl implements SessionService {
                 System.currentTimeMillis() + properties.getRefreshExpiration()
         );
 
-        return sessions.put(sessionId, session);
+        sessions.put(sessionId, session);
+
+        return session;
     }
 
     @Override
