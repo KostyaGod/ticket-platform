@@ -28,7 +28,6 @@ public class AuthController {
     public ResponseEntity<?> register(
             @Valid @RequestBody RegisterRequest request,
             HttpServletResponse response
-
     ) {
         Tokens tokens = authService.register(request);
         addCookies(response, tokens);
