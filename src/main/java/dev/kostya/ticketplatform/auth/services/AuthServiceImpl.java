@@ -20,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -33,18 +34,24 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Tokens login(LoginRequest request) {
-        User founded = repository.findByUsername(request.email())
-                .orElseThrow(InvalidCredentialsException::new);
+        String login = request.login();
 
-        if (!passwordEncoder.matches(request.password(), founded.getPasswordHash())) {
+        Optional<User> foundOpt =
+                login.contains("@")
+                        ? repository.findByEmail(login)
+                        : repository.findByUsername(login);
+
+        User user = foundOpt.orElseThrow(InvalidCredentialsException::new);
+
+        if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw new InvalidCredentialsException();
         }
 
-        if (founded.getStatus() == UserStatus.BLOCKED) {
+        if (user.getStatus() == UserStatus.BLOCKED) {
             throw new UserBlockedException();
         }
 
-        return createSessionWithTokens(founded);
+        return createSessionWithTokens(user);
     }
 
     @Override
