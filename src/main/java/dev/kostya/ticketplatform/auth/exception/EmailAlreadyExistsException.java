@@ -2,6 +2,6 @@ package dev.kostya.ticketplatform.auth.exception;
 
 public class EmailAlreadyExistsException extends RuntimeException {
     public EmailAlreadyExistsException() {
-        super("Email already exists.");
+        super("User with this email already exists");
     }
 }
