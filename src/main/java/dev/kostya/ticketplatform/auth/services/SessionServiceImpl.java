@@ -34,10 +34,14 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     public void updateJTI(UUID sessionId, UUID newJti) {
-        sessions.computeIfPresent(sessionId, (oldJti, session) -> {
+        sessions.computeIfPresent(sessionId, (id, session) -> {
             session.setJti(newJti);
             return session;
         });
+    }
+
+    public void deleteSession(UUID sessionId) {
+        sessions.remove(sessionId);
     }
 
     @Override

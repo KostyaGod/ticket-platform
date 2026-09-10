@@ -59,7 +59,12 @@ public class AuthController {
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
+    public ResponseEntity<?> logout(
+            HttpServletResponse response,
+            HttpServletRequest request
+    ) {
+        String refreshToken = cookieService.extractRefreshToken(request).orElseThrow(InvalidCredentialsException::new);
+        authService.logout(refreshToken);
         cookieService.clearCookies(response);
 
         return ResponseEntity.ok().build();

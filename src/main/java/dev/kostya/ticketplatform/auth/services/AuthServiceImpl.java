@@ -104,6 +104,18 @@ public class AuthServiceImpl implements AuthService {
         );
     }
 
+    @Override
+    public void logout(String refreshToken) {
+        UUID oldJti = jwtService.extractJTI(refreshToken);
+        UUID sessionId = jwtService.extractSessionIdRefresh(refreshToken);
+        if (!sessionService.validate(sessionId, oldJti)) {
+            throw new InvalidCredentialsException();
+        }
+
+        sessionService.deleteSession(sessionId);
+    }
+
+
     private Tokens createSessionWithTokens(User saved) {
         UserPrincipal userPrincipal = mapper.toPrincipal(saved);
         updateSecurityContextHolder(userPrincipal);
