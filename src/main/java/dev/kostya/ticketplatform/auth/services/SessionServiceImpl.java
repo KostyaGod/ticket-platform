@@ -36,11 +36,14 @@ public class SessionServiceImpl implements SessionService {
     }
 
     @Override
-    public void updateJTI(UUID sessionId, UUID newJti) {
+    public UUID rotateJTI(UUID sessionId) {
+        UUID newJti = UUID.randomUUID();
         sessions.computeIfPresent(sessionId, (id, session) -> {
             session.setJti(newJti);
             return session;
         });
+
+        return newJti;
     }
 
     @Override

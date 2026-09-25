@@ -95,9 +95,8 @@ public class AuthServiceImpl implements AuthService {
         );
 
         updateSecurityContext(userPrincipal);
-        UUID newJti = UUID.randomUUID();
+        UUID newJti = sessionService.rotateJTI(sessionId);
 
-        sessionService.updateJTI(sessionId, newJti);
 
         return new Tokens(
                 jwtService.generateAccessToken(userPrincipal, sessionId),

@@ -8,7 +8,7 @@ import java.util.UUID;
 public interface SessionService {
     Session createSession(UserPrincipal userPrincipal);
     void deleteSession(UUID sessionId);
-    void updateJTI(UUID sessionId, UUID newJti);
+    UUID rotateJTI(UUID sessionId);
     boolean validate(UUID sessionId, UUID jti);
     void save(Session session);
 }
