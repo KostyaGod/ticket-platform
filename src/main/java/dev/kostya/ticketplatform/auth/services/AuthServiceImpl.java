@@ -114,7 +114,9 @@ public class AuthServiceImpl implements AuthService {
             throw new InvalidCredentialsException();
         }
 
-        sessionService.deleteSession(sessionId);
+        Long userId = jwtService.extractUserIdRefresh(refreshToken);
+
+        sessionService.deleteSession(sessionId, userId);
     }
 
     private Tokens createSessionWithTokens(User saved) {

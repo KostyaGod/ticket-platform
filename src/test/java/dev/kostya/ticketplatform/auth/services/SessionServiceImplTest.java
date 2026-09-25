@@ -1,6 +1,7 @@
 package dev.kostya.ticketplatform.auth.services;
 
 import dev.kostya.ticketplatform.auth.enums.Role;
+import dev.kostya.ticketplatform.auth.repositories.SessionRepository;
 import dev.kostya.ticketplatform.auth.security.JwtProperties;
 import dev.kostya.ticketplatform.auth.security.Session;
 import dev.kostya.ticketplatform.auth.security.UserPrincipal;
@@ -10,20 +11,36 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class SessionServiceImplTest {
     @Mock
     private JwtProperties properties;
+    @Mock
+    private SessionRepository repository;
     @InjectMocks
     private SessionServiceImpl sessionService;
 
+    private final long id = 1L;
+    private final UUID sessionId = UUID.randomUUID();
+    private final UUID jti = UUID.randomUUID();
+
     private final UserPrincipal userPrincipal =
-            new UserPrincipal(1L, Role.ROLE_USER);
+            new UserPrincipal(id, Role.ROLE_USER);
+
+    private final Session session = new Session(
+            sessionId,
+            userPrincipal.getId(),
+            jti,
+            System.currentTimeMillis(),
+            System.currentTimeMillis() + 60_000
+    );
 
     @Test
     void createSession_shouldCreateValidSession() {
@@ -37,163 +54,93 @@ public class SessionServiceImplTest {
         long after = System.currentTimeMillis();
 
         assertNotNull(session);
-
         assertNotNull(session.getSessionId());
-        assertEquals(1L, session.getUserId());
         assertNotNull(session.getJti());
+        assertEquals(id, session.getUserId());
 
         assertTrue(session.getCreatedAt() >= before);
         assertTrue(session.getCreatedAt() <= after);
 
         assertTrue(session.getExpiresAt() >= before + 60_000L);
         assertTrue(session.getExpiresAt() <= after + 60_000L);
-    }
 
-    @Test
-    void createSession_shouldSaveSession() {
-        when(properties.getRefreshExpiration())
-                .thenReturn(60_000L);
-
-        Session session = sessionService.createSession(userPrincipal);
-
-        assertTrue(
-                sessionService.validate(
-                        session.getSessionId(),
-                        session.getJti()
-                )
-        );
+        verify(repository).save(session);
     }
 
     @Test
     void rotateJTI_shouldReplaceSessionJTI() {
-        when(properties.getRefreshExpiration())
-                .thenReturn(60_000L);
+        UUID result = sessionService.rotateJTI(sessionId);
 
-        Session session = sessionService.createSession(userPrincipal);
+        assertNotNull(result);
 
-        UUID oldJti = session.getJti();
-        UUID newJti = sessionService.rotateJTI(session.getSessionId());
-
-        assertNotEquals(oldJti, newJti);
-        assertFalse(
-                sessionService.validate(
-                        session.getSessionId(),
-                        oldJti
-                )
-        );
-
-        assertTrue(
-                sessionService.validate(
-                        session.getSessionId(),
-                        newJti
-                )
+        verify(repository).updateJti(
+                sessionId,
+                result
         );
     }
 
     @Test
-    void rotateJTI_shouldDoNothing_whenSessionDoesNotExist() {
-        UUID sessionId = UUID.randomUUID();
+    void deleteSession_shouldDeleteSession() {
+        sessionService.deleteSession(sessionId, id);
 
-        assertDoesNotThrow(
-                () -> sessionService.rotateJTI(sessionId)
+        verify(repository).delete(
+                sessionId,
+                id
         );
     }
 
     @Test
-    void validate_shouldReturnTrue_whenSessionAndJTIAreValid() {
-        when(properties.getRefreshExpiration())
-                .thenReturn(60_000L);
+    void validate_shouldReturnTrue_whenSessionExistsAndJtiMatches() {
+        when(repository.findById(sessionId))
+                .thenReturn(Optional.of(session));
 
-        Session session = sessionService.createSession(userPrincipal);
-
-        assertTrue(
-                sessionService.validate(
-                        session.getSessionId(),
-                        session.getJti()
-                )
+        boolean result = sessionService.validate(
+                sessionId,
+                jti
         );
+
+        assertTrue(result);
+
+        verify(repository).findById(sessionId);
     }
 
     @Test
-    void validate_shouldReturnFalse_whenSessionAndJTIIsInvalid() {
-        when(properties.getRefreshExpiration())
-                .thenReturn(60_000L);
+    void validate_shouldReturnFalse_whenJtiDoesNotMatch() {
+        UUID wrongJti = UUID.randomUUID();
 
-        Session session = sessionService.createSession(userPrincipal);
-        UUID wrongJti  = UUID.randomUUID();
+        when(repository.findById(sessionId))
+                .thenReturn(Optional.of(session));
 
-        assertFalse(
-                sessionService.validate(
-                        session.getSessionId(),
-                        wrongJti
-                )
+        boolean result = sessionService.validate(
+                sessionId,
+                wrongJti
         );
+
+        assertFalse(result);
+
+        verify(repository).findById(sessionId);
     }
 
     @Test
-    void validate_shouldReturnFalse_whenSessionDoesNotExist() {
-        UUID sessionId = UUID.randomUUID();
-        UUID jti = UUID.randomUUID();
+    void validate_shouldReturnFalse_whenSessionNotFound() {
+        when(repository.findById(sessionId))
+                .thenReturn(Optional.empty());
 
-        assertFalse(
-                sessionService.validate(sessionId, jti)
-        );
-    }
-
-    @Test
-    void deleteSession_shouldRemoveSession() {
-        when(properties.getRefreshExpiration())
-                .thenReturn(60_000L);
-
-        Session session = sessionService.createSession(userPrincipal);
-
-        assertTrue(
-                sessionService.validate(
-                        session.getSessionId(),
-                        session.getJti()
-                )
+        boolean result = sessionService.validate(
+                sessionId,
+                jti
         );
 
-        sessionService.deleteSession(session.getSessionId());
+        assertFalse(result);
 
-        assertFalse(
-                sessionService.validate(
-                        session.getSessionId(),
-                        session.getJti()
-                )
-        );
-    }
-
-    @Test
-    void deleteSession_shouldDoNothing_whenSessionDoesNotExist() {
-        UUID sessionId = UUID.randomUUID();
-
-        assertDoesNotThrow(
-                () -> sessionService.deleteSession(sessionId)
-        );
+        verify(repository).findById(sessionId);
     }
 
     @Test
     void save_shouldSaveSession() {
-        UUID sessionId = UUID.randomUUID();
-        UUID sessionJti = UUID.randomUUID();
-
-        Session session = new Session(
-                sessionId,
-                userPrincipal.getId(),
-                sessionJti,
-                System.currentTimeMillis(),
-                System.currentTimeMillis() + 60_000
-        );
-
-        assertFalse(
-                sessionService.validate(sessionId, sessionJti)
-        );
-
         sessionService.save(session);
 
-        assertTrue(
-                sessionService.validate(sessionId, sessionJti)
-        );
+        verify(repository).save(session);
     }
+
 }

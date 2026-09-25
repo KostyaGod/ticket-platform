@@ -1,21 +1,20 @@
 package dev.kostya.ticketplatform.auth.services;
 
+import dev.kostya.ticketplatform.auth.repositories.SessionRepository;
 import dev.kostya.ticketplatform.auth.security.JwtProperties;
 import dev.kostya.ticketplatform.auth.security.Session;
 import dev.kostya.ticketplatform.auth.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
 public class SessionServiceImpl implements SessionService {
-    private final Map<UUID, Session> sessions = new ConcurrentHashMap<>();
     private final JwtProperties properties;
+    private final SessionRepository repository;
 
     @Override
     public Session createSession(UserPrincipal userPrincipal) {
@@ -30,7 +29,7 @@ public class SessionServiceImpl implements SessionService {
                 System.currentTimeMillis() + properties.getRefreshExpiration()
         );
 
-        sessions.put(sessionId, session);
+        repository.save(session);
 
         return session;
     }
@@ -38,28 +37,25 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public UUID rotateJTI(UUID sessionId) {
         UUID newJti = UUID.randomUUID();
-        sessions.computeIfPresent(sessionId, (id, session) -> {
-            session.setJti(newJti);
-            return session;
-        });
+        repository.updateJti(sessionId, newJti);
 
         return newJti;
     }
 
     @Override
-    public void deleteSession(UUID sessionId) {
-        sessions.remove(sessionId);
+    public void deleteSession(UUID sessionId, Long userId) {
+        repository.delete(sessionId, userId);
     }
 
     @Override
     public boolean validate(UUID sessionId, UUID jti) {
-        Session session = sessions.get(sessionId);
-
-        return session != null && Objects.equals(session.getJti(), jti);
+        return repository.findById(sessionId)
+                .map(session -> Objects.equals(session.getJti(), jti))
+                .orElse(false);
     }
 
     @Override
     public void save(Session session) {
-        sessions.put(session.getSessionId(), session);
+        repository.save(session);
     }
 }

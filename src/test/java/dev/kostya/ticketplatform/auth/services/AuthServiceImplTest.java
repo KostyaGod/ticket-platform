@@ -432,12 +432,15 @@ public class AuthServiceImplTest {
         when(sessionService.validate(sessionId, oldJti))
                 .thenReturn(true);
 
+        when(jwtService.extractUserIdRefresh(refreshToken))
+                .thenReturn(id);
+
         authService.logout(refreshToken);
 
         verify(jwtService).extractJTI(refreshToken);
         verify(jwtService).extractSessionIdRefresh(refreshToken);
         verify(sessionService).validate(sessionId, oldJti);
-        verify(sessionService).deleteSession(sessionId);
+        verify(sessionService).deleteSession(sessionId, id);
     }
 
     @Test
@@ -460,7 +463,7 @@ public class AuthServiceImplTest {
         );
 
         verify(sessionService).validate(sessionId, oldJti);
-        verify(sessionService, never()).deleteSession(any());
+        verify(sessionService, never()).deleteSession(any(), any());
     }
 
     private void configureAndCreateLoginRequest(LoginRequest request, Optional<User> userOptional) {
