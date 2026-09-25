@@ -51,7 +51,7 @@ public class AuthServiceImpl implements AuthService {
             throw new UserBlockedException();
         }
 
-        return createSessionWithTokens(user);
+        return updateSecurityContextAndCreateSessionWithTokens(user);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
 
         User saved = repository.save(user);
 
-        return createSessionWithTokens(saved);
+        return updateSecurityContextAndCreateSessionWithTokens(saved);
     }
 
     @Override
@@ -94,8 +94,9 @@ public class AuthServiceImpl implements AuthService {
                         .orElseThrow(InvalidCredentialsException::new)
         );
 
-        updateSecurityContextHolder(userPrincipal);
+        updateSecurityContext(userPrincipal);
         UUID newJti = UUID.randomUUID();
+
         sessionService.updateJTI(sessionId, newJti);
 
         return new Tokens(
@@ -115,23 +116,26 @@ public class AuthServiceImpl implements AuthService {
         sessionService.deleteSession(sessionId);
     }
 
-
-    private Tokens createSessionWithTokens(User saved) {
+    private Tokens updateSecurityContextAndCreateSessionWithTokens(User saved) {
         UserPrincipal userPrincipal = mapper.toPrincipal(saved);
-        updateSecurityContextHolder(userPrincipal);
+        updateSecurityContext(userPrincipal);
 
         Session session = sessionService.createSession(userPrincipal);
-        UUID jti = UUID.randomUUID();
-        session.setJti(jti);
-        sessionService.save(session);
 
         return new Tokens(
-                jwtService.generateAccessToken(userPrincipal, session.getSessionId()),
-                jwtService.generateRefreshToken(userPrincipal, session.getSessionId(), jti)
+                jwtService.generateAccessToken(
+                        userPrincipal,
+                        session.getSessionId()
+                ),
+                jwtService.generateRefreshToken(
+                        userPrincipal,
+                        session.getSessionId(),
+                        session.getJti()
+                )
         );
     }
 
-    private void updateSecurityContextHolder(UserPrincipal userPrincipal) {
+    private void updateSecurityContext(UserPrincipal userPrincipal) {
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(
                         userPrincipal,

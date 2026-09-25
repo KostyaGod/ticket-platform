@@ -20,9 +20,12 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public Session createSession(UserPrincipal userPrincipal) {
         UUID sessionId = UUID.randomUUID();
+        UUID sessionJti = UUID.randomUUID();
+
         Session session = new Session(
                 sessionId,
                 userPrincipal.getId(),
+                sessionJti,
                 System.currentTimeMillis(),
                 System.currentTimeMillis() + properties.getRefreshExpiration()
         );
@@ -40,6 +43,7 @@ public class SessionServiceImpl implements SessionService {
         });
     }
 
+    @Override
     public void deleteSession(UUID sessionId) {
         sessions.remove(sessionId);
     }
