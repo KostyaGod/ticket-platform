@@ -2,6 +2,7 @@ package dev.kostya.ticketplatform.auth.services;
 
 import dev.kostya.ticketplatform.auth.enums.Role;
 import dev.kostya.ticketplatform.auth.security.JwtProperties;
+import dev.kostya.ticketplatform.auth.security.Tokens;
 import dev.kostya.ticketplatform.auth.security.UserPrincipal;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -20,7 +21,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
     private final JwtProperties properties;
-    private final SessionService sessionService;
     private SecretKey accessKey;
     private SecretKey refreshKey;
 
@@ -31,7 +31,22 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public String generateAccessToken(UserPrincipal userPrincipal, UUID sessionId) {
+    public Tokens generateTokenPair(
+            UserPrincipal principal,
+            UUID sessionId,
+            UUID jti
+    ) {
+        return new Tokens(
+                generateAccessToken(principal, sessionId),
+                generateRefreshToken(principal, sessionId, jti)
+        );
+    }
+
+    @Override
+    public String generateAccessToken(
+            UserPrincipal userPrincipal,
+            UUID sessionId
+    ) {
         return Jwts.builder()
                 .subject(String.valueOf(userPrincipal.getId()))
                 .claim("role", userPrincipal.getRole().name())
@@ -45,7 +60,11 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public String generateRefreshToken(UserPrincipal userPrincipal, UUID sessionId, UUID jti) {
+    public String generateRefreshToken(
+            UserPrincipal userPrincipal,
+            UUID sessionId,
+            UUID jti
+    ) {
         return Jwts.builder()
                 .subject(String.valueOf(userPrincipal.getId()))
                 .claim("jti", jti.toString())

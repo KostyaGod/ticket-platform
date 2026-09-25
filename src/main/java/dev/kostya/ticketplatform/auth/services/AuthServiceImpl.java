@@ -43,7 +43,10 @@ public class AuthServiceImpl implements AuthService {
 
         User user = foundOpt.orElseThrow(InvalidCredentialsException::new);
 
-        if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+        if (!passwordEncoder.matches(
+                request.password(),
+                user.getPasswordHash()
+        )) {
             throw new InvalidCredentialsException();
         }
 
@@ -51,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
             throw new UserBlockedException();
         }
 
-        return updateSecurityContextAndCreateSessionWithTokens(user);
+        return createSessionWithTokens(user);
     }
 
     @Override
@@ -73,7 +76,7 @@ public class AuthServiceImpl implements AuthService {
 
         User saved = repository.save(user);
 
-        return updateSecurityContextAndCreateSessionWithTokens(saved);
+        return createSessionWithTokens(saved);
     }
 
     @Override
@@ -84,23 +87,22 @@ public class AuthServiceImpl implements AuthService {
 
         UUID oldJti = jwtService.extractJTI(refreshToken);
         UUID sessionId = jwtService.extractSessionIdRefresh(refreshToken);
+
         if (!sessionService.validate(sessionId, oldJti)) {
             throw new InvalidCredentialsException();
         }
 
         Long userId = jwtService.extractUserIdRefresh(refreshToken);
-        UserPrincipal userPrincipal = mapper.toPrincipal(
-                repository.findById(userId)
-                        .orElseThrow(InvalidCredentialsException::new)
-        );
+        User user = repository.findById(userId)
+                .orElseThrow(InvalidCredentialsException::new);
 
-        updateSecurityContext(userPrincipal);
+        UserPrincipal principal = authenticate(user);
         UUID newJti = sessionService.rotateJTI(sessionId);
 
-
-        return new Tokens(
-                jwtService.generateAccessToken(userPrincipal, sessionId),
-                jwtService.generateRefreshToken(userPrincipal, sessionId, newJti)
+        return jwtService.generateTokenPair(
+                principal,
+                sessionId,
+                newJti
         );
     }
 
@@ -115,32 +117,27 @@ public class AuthServiceImpl implements AuthService {
         sessionService.deleteSession(sessionId);
     }
 
-    private Tokens updateSecurityContextAndCreateSessionWithTokens(User saved) {
-        UserPrincipal userPrincipal = mapper.toPrincipal(saved);
-        updateSecurityContext(userPrincipal);
+    private Tokens createSessionWithTokens(User saved) {
+        UserPrincipal principal = authenticate(saved);
+        Session session = sessionService.createSession(principal);
 
-        Session session = sessionService.createSession(userPrincipal);
-
-        return new Tokens(
-                jwtService.generateAccessToken(
-                        userPrincipal,
-                        session.getSessionId()
-                ),
-                jwtService.generateRefreshToken(
-                        userPrincipal,
-                        session.getSessionId(),
-                        session.getJti()
-                )
+        return jwtService.generateTokenPair(
+                principal,
+                session.getSessionId(),
+                session.getJti()
         );
     }
 
-    private void updateSecurityContext(UserPrincipal userPrincipal) {
+    private UserPrincipal authenticate(User user) {
+        UserPrincipal principal = mapper.toPrincipal(user);
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(
-                        userPrincipal,
+                        principal,
                         null,
-                        userPrincipal.getAuthorities()
+                        principal.getAuthorities()
                 )
         );
+
+        return principal;
     }
 }
