@@ -65,16 +65,14 @@ public class SessionServiceImplTest {
     }
 
     @Test
-    void updateJTI_shouldReplaceSessionJTI() {
+    void rotateJTI_shouldReplaceSessionJTI() {
         when(properties.getRefreshExpiration())
                 .thenReturn(60_000L);
 
         Session session = sessionService.createSession(userPrincipal);
 
         UUID oldJti = session.getJti();
-        UUID newJti = UUID.randomUUID();
-
-        sessionService.updateJTI(session.getSessionId(), newJti);
+        UUID newJti = sessionService.rotateJTI(session.getSessionId());
 
         assertNotEquals(oldJti, newJti);
         assertFalse(
@@ -93,14 +91,11 @@ public class SessionServiceImplTest {
     }
 
     @Test
-    void updateJTI_shouldDoNothing_whenSessionDoesNotExist() {
+    void rotateJTI_shouldDoNothing_whenSessionDoesNotExist() {
         UUID sessionId = UUID.randomUUID();
-        UUID newJti = UUID.randomUUID();
-
-        sessionService.updateJTI(sessionId, newJti);
 
         assertDoesNotThrow(
-                () -> sessionService.updateJTI(sessionId, newJti)
+                () -> sessionService.rotateJTI(sessionId)
         );
     }
 
