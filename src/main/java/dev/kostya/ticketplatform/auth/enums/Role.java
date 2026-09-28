@@ -2,7 +2,8 @@ package dev.kostya.ticketplatform.auth.enums;
 
 
 public enum Role {
-    ROLE_USER,
+    ROLE_CLIENT,
     ROLE_ADMIN,
-    ROLE_CASHIER
+    ROLE_CASHIER,
+    ROLE_SERVER
 }
