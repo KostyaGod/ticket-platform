@@ -1,5 +1,6 @@
 package dev.kostya.ticketplatform.auth.services;
 
+import dev.kostya.ticketplatform.auth.dto.response.SessionResponse;
 import dev.kostya.ticketplatform.auth.repositories.SessionRepository;
 import dev.kostya.ticketplatform.auth.security.JwtProperties;
 import dev.kostya.ticketplatform.auth.security.Session;
@@ -7,6 +8,7 @@ import dev.kostya.ticketplatform.auth.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -62,5 +64,10 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public void save(Session session) {
         repository.save(session);
+    }
+
+    @Override
+    public List<SessionResponse> getSessions(Long userId, UUID currentSessionId) {
+        return repository.findAllByUserId(userId, currentSessionId);
     }
 }

@@ -1,5 +1,7 @@
 package dev.kostya.ticketplatform.auth.repositories;
 
+import dev.kostya.ticketplatform.auth.dto.response.SessionResponse;
+import dev.kostya.ticketplatform.auth.exception.SessionNotFoundException;
 import dev.kostya.ticketplatform.auth.security.JwtProperties;
 import dev.kostya.ticketplatform.auth.security.Session;
 import lombok.RequiredArgsConstructor;
@@ -81,6 +83,9 @@ public class RedisSessionRepository implements SessionRepository {
 
     @Override
     public void delete(UUID sessionId, Long userId) {
+        if (!existsBySessionIdAndUserId(sessionId, userId))
+            throw new SessionNotFoundException();
+
         redisTemplate.delete(
                 sessionKey(sessionId)
         );
@@ -95,8 +100,7 @@ public class RedisSessionRepository implements SessionRepository {
     public void deleteAllByUserId(Long userId) {
         String userKey = userKey(userId);
 
-        Set<String> sessionIds = redisTemplate.opsForSet()
-                .members(userKey);
+        Set<String> sessionIds = getAndCleanUpSessionsSet(userId);
 
         if (sessionIds != null && !sessionIds.isEmpty()) {
             redisTemplate.delete(
@@ -112,14 +116,54 @@ public class RedisSessionRepository implements SessionRepository {
 
     @Override
     public Set<UUID> findSessionIdsByUserId(Long userId) {
-        Set<String> sessionIds = redisTemplate.opsForSet()
-                .members(userKey(userId));
+        Set<String> sessionIds = getAndCleanUpSessionsSet(userId);
 
         if (sessionIds == null) return Set.of();
 
         return sessionIds.stream()
                 .map(UUID::fromString)
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public List<SessionResponse> findAllByUserId(
+            Long userId,
+            UUID currentSessionId
+    ) {
+        Set<String> sessionIds = getAndCleanUpSessionsSet(userId);
+
+        if (sessionIds == null || sessionIds.isEmpty()) {
+            return List.of();
+        }
+
+        return sessionIds.stream()
+                .map(id -> {
+                    UUID sessionId = UUID.fromString(id);
+                    Map<Object, Object> data =
+                            redisTemplate.opsForHash().entries(sessionKey(id));
+
+                    if (data.isEmpty()) return null;
+
+                    return new SessionResponse(
+                            sessionId,
+                            Long.parseLong((String) data.get(CREATED_AT_FIELD)),
+                            Long.parseLong((String) data.get(EXPIRES_AT_FIELD)),
+                            Objects.equals(currentSessionId, sessionId)
+                    );
+                })
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    @Override
+    public boolean existsBySessionIdAndUserId(UUID sessionId, Long userId) {
+        return Boolean.TRUE.equals(
+                redisTemplate.opsForSet().isMember(
+                        sessionKey(sessionId),
+                        userKey(userId
+                        )
+                )
+        );
     }
 
     private String sessionKey(String sessionId) {
@@ -136,5 +180,31 @@ public class RedisSessionRepository implements SessionRepository {
 
     private String userKey(Long userId) {
         return USER_KEY_PREFIX + userId;
+    }
+
+    private Set<String> getAndCleanUpSessionsSet(Long userId) {
+        String userKey = userKey(userId);
+
+        Set<String> sessionIds = redisTemplate.opsForSet()
+                .members(userKey(userId));
+
+        if (sessionIds != null && !sessionIds.isEmpty()) {
+            sessionIds.removeIf(sessionId -> {
+                String key = sessionKey(sessionId);
+
+                if (Boolean.FALSE.equals(redisTemplate.hasKey(key))) {
+                    redisTemplate.opsForSet().remove(
+                            userKey,
+                            sessionId
+                    );
+
+                    return true;
+                }
+
+                return false;
+            });
+        }
+
+        return sessionIds;
     }
 }

@@ -126,4 +126,17 @@ public class GlobalExceptionHandler {
                 null
         );
     }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(SessionNotFoundException.class)
+    public ErrorResponse handleUserBlocked(
+            SessionNotFoundException ex
+    ) {
+        return new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage(),
+                null
+        );
+    }
 }

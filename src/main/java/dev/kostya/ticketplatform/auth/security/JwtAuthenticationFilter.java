@@ -44,7 +44,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         UserPrincipal userPrincipal = new UserPrincipal(
                 jwtService.extractUserIdAccess(token),
-                jwtService.extractRole(token)
+                jwtService.extractRole(token),
+                jwtService.extractSessionIdAccess(token)
         );
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {

@@ -22,10 +22,10 @@ public class UserPrincipal implements UserDetails {
     private UUID sessionId;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(Long id, Role role) {
+    public UserPrincipal(Long id, Role role, UUID sessionId) {
         this.id = id;
         this.role = role;
-        this.sessionId = null;
+        this.sessionId = sessionId;
         this.authorities = List.of(
                 new SimpleGrantedAuthority( role.name() )
         );

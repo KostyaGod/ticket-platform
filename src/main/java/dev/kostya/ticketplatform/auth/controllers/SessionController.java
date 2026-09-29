@@ -1,9 +1,50 @@
 package dev.kostya.ticketplatform.auth.controllers;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import dev.kostya.ticketplatform.auth.dto.response.SessionResponse;
+import dev.kostya.ticketplatform.auth.security.UserPrincipal;
+import dev.kostya.ticketplatform.auth.services.SessionService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/sessions")
+@RequiredArgsConstructor
 public class SessionController {
+    private final SessionService sessionService;
+
+    @GetMapping("/me")
+    @ResponseStatus(HttpStatus.OK)
+    public List<SessionResponse> getAllSessions(
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        return sessionService.getSessions(
+                principal.getId(),
+                principal.getSessionId()
+        );
+    }
+
+    @DeleteMapping("/{sessionId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteSession(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable UUID sessionId
+    ) {
+        sessionService.deleteSession(
+                sessionId,
+                principal.getId()
+        );
+    }
+
+    @DeleteMapping()
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAllSessions(
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        sessionService.deleteAllSessions(principal.getId());
+    }
 }
