@@ -48,6 +48,11 @@ public class SessionServiceImpl implements SessionService {
     }
 
     @Override
+    public void deleteAllSessions(Long userId) {
+        repository.deleteAllByUserId(userId);
+    }
+
+    @Override
     public boolean validate(UUID sessionId, UUID jti) {
         return repository.findById(sessionId)
                 .map(session -> Objects.equals(session.getJti(), jti))

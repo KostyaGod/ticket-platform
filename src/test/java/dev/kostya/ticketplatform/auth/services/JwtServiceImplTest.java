@@ -25,7 +25,7 @@ public class JwtServiceImplTest {
     private JwtServiceImpl jwtService;
 
     private final long id = 1L;
-    private final Role role = Role.ROLE_USER;
+    private final Role role = Role.ROLE_CLIENT;
     private final UserPrincipal principal = new UserPrincipal(
             id,
             role

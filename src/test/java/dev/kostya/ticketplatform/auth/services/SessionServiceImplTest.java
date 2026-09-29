@@ -32,7 +32,7 @@ public class SessionServiceImplTest {
     private final UUID jti = UUID.randomUUID();
 
     private final UserPrincipal userPrincipal =
-            new UserPrincipal(id, Role.ROLE_USER);
+            new UserPrincipal(id, Role.ROLE_CLIENT);
 
     private final Session session = new Session(
             sessionId,

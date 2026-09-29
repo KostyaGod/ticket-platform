@@ -20,8 +20,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
-    private final UserService userService;
-    private final JwtService jwtService;
     private final CookieService cookieService;
 
     @PostMapping("/register")

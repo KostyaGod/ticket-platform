@@ -13,8 +13,8 @@ public record RegisterRequest(
                 message = "Username can contain only letters, numbers, '.', '_' and '-'")
         String username,
 
-        @Email(message = "Email is required.")
         @NotBlank(message = "Invalid login address.")
+        @Email(message = "Email is required.")
         String email,
 
         @NotBlank(message = "Password is required.")

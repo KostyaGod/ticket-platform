@@ -72,11 +72,11 @@ public class AuthServiceImplTest {
             .username(username)
             .email(email)
             .passwordHash("encoded-password")
-            .role(Role.ROLE_USER)
+            .role(Role.ROLE_CLIENT)
             .status(UserStatus.ACTIVE)
             .build();
 
-    private final UserPrincipal userPrincipal = new UserPrincipal(id, Role.ROLE_USER);
+    private final UserPrincipal userPrincipal = new UserPrincipal(id, Role.ROLE_CLIENT);
 
     private static Stream<LoginRequest> loginRequests() {
         return Stream.of(
@@ -174,7 +174,7 @@ public class AuthServiceImplTest {
                 .username(username)
                 .email(email)
                 .passwordHash("encoded-password")
-                .role(Role.ROLE_USER)
+                .role(Role.ROLE_CLIENT)
                 .status(UserStatus.BLOCKED)
                 .build();
 
