@@ -1,15 +1,22 @@
 package dev.kostya.ticketplatform.auth.controllers;
 
+import dev.kostya.ticketplatform.auth.dto.request.ChangePasswordRequest;
+import dev.kostya.ticketplatform.auth.dto.request.CreateUserRequest;
 import dev.kostya.ticketplatform.auth.dto.request.UpdateProfileRequest;
 import dev.kostya.ticketplatform.auth.dto.request.UpdateUserRequest;
+import dev.kostya.ticketplatform.auth.dto.response.UserPageResponse;
 import dev.kostya.ticketplatform.auth.dto.response.UserResponse;
 import dev.kostya.ticketplatform.auth.security.UserPrincipal;
 import dev.kostya.ticketplatform.auth.services.SessionService;
 import dev.kostya.ticketplatform.auth.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,34 +28,64 @@ public class UsersController {
     private final SessionService sessionService;
 
     @GetMapping("/me")
-    public ResponseEntity<?> getProfile(
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponse getProfile(
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        UserResponse userResponse = userService.getProfile(principal.getId());
-
-        return ResponseEntity.ok(userResponse);
+        return userService.getProfile(principal.getId());
     }
 
     @PatchMapping("/me")
-    public ResponseEntity<?> updateProfile(
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponse updateProfile(
             @AuthenticationPrincipal UserPrincipal principal,
             @Valid @RequestBody UpdateProfileRequest request
     ) {
-        userService.updateProfile(principal.getId(), request);
-
-        return ResponseEntity.ok().build();
+        return userService.updateProfile(principal.getId(), request);
     }
 
     @DeleteMapping("/me")
-    public ResponseEntity<?> deleteProfile(
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProfile(
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        userService.deleteUser(principal.getId());
+        userService.deleteById(principal.getId());
         sessionService.deleteAllSessions(principal.getId());
-
-        return ResponseEntity.ok().build();
     }
 
+    @PatchMapping("/me/password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changePassword(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody ChangePasswordRequest request
+    ) {
+        userService.changePasswordById(principal.getId(), request);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
+    @GetMapping()
+    @ResponseStatus(HttpStatus.OK)
+    public UserPageResponse getUsers(
+            @PageableDefault(
+                    size = 20,
+                    sort = "createdAt",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable
+    ) {
+        return userService.getUsers(pageable);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
+    @PostMapping()
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponse createUser(
+            @Valid @RequestBody CreateUserRequest request
+    ) {
+        return userService.create(request);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
     @PatchMapping("/{id}")
     public ResponseEntity<?> updateUser(
             @AuthenticationPrincipal UserPrincipal principal,
@@ -61,7 +98,7 @@ public class UsersController {
                             "the admin management endpoint. Please use " +
                             "the profile settings page.");
         }
-        userService.updateUser(id, request);
+        userService.updateById(id, request);
 
         return ResponseEntity.ok().build();
     }

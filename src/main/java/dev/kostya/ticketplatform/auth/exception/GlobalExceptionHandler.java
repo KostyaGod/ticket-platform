@@ -20,8 +20,8 @@ public class GlobalExceptionHandler {
             EmailAlreadyExistsException ex
     ) {
         return new ErrorResponse(
-                409,
-                "Conflict",
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
                 ex.getMessage(),
                 null
         );
@@ -33,8 +33,8 @@ public class GlobalExceptionHandler {
             InvalidCredentialsException ex
     ) {
         return new ErrorResponse(
-                401,
-                "Unauthorized",
+                HttpStatus.UNAUTHORIZED.value(),
+                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
                 ex.getMessage(),
                 null
         );
@@ -46,8 +46,8 @@ public class GlobalExceptionHandler {
             UserBlockedException ex
     ) {
         return new ErrorResponse(
-                401,
-                "Unauthorized",
+                HttpStatus.UNAUTHORIZED.value(),
+                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
                 ex.getMessage(),
                 null
         );
@@ -81,10 +81,49 @@ public class GlobalExceptionHandler {
                 ));
 
         return new ErrorResponse(
-                400,
-                "Bad Request",
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 "Validation failed",
                 errors
+        );
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(CurrentPasswordMismatchException.class)
+    public ErrorResponse handleCurrentPasswordMismatch(
+            CurrentPasswordMismatchException ex
+    ) {
+        return new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                null
+        );
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(NewPasswordMatchesOldException.class)
+    public ErrorResponse handleNewPasswordMatchesOld(
+            NewPasswordMatchesOldException ex
+    ) {
+        return new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                null
+        );
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(UserNotFoundException.class)
+    public ErrorResponse handleUserNotFound(
+            UserNotFoundException ex
+    ) {
+        return new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                null
         );
     }
 }

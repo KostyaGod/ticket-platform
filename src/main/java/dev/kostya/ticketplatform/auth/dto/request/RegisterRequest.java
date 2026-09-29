@@ -9,12 +9,12 @@ public record RegisterRequest(
         @NotBlank(message = "Username is required.")
         @Size(min = 3, max = 80,
                 message = "Username must contain from 3 to 80 characters.")
-        @Pattern(regexp = "^[a-zA-Z0-9_.]+$",
+        @Pattern(regexp = "^[a-zA-Z0-9_.-]+$",
                 message = "Username can contain only letters, numbers, '.', '_' and '-'")
         String username,
 
-        @NotBlank(message = "Invalid login address.")
-        @Email(message = "Email is required.")
+        @NotBlank(message = "Email is required.")
+        @Email(message = "Invalid email address.")
         String email,
 
         @NotBlank(message = "Password is required.")

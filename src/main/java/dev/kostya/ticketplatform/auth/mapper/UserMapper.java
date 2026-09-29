@@ -1,5 +1,6 @@
 package dev.kostya.ticketplatform.auth.mapper;
 
+import dev.kostya.ticketplatform.auth.dto.request.CreateUserRequest;
 import dev.kostya.ticketplatform.auth.dto.request.RegisterRequest;
 import dev.kostya.ticketplatform.auth.dto.request.UpdateProfileRequest;
 import dev.kostya.ticketplatform.auth.dto.request.UpdateUserRequest;
@@ -19,6 +20,11 @@ public interface UserMapper {
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     User toEntity(RegisterRequest dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "passwordHash", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    User toEntity(CreateUserRequest dto);
 
     @Mapping(target = "sessionId", ignore = true)
     @Mapping(target = "authorities", ignore = true)
