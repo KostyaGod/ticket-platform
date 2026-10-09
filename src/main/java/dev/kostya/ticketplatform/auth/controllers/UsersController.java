@@ -1,9 +1,6 @@
 package dev.kostya.ticketplatform.auth.controllers;
 
-import dev.kostya.ticketplatform.auth.dto.request.ChangePasswordRequest;
-import dev.kostya.ticketplatform.auth.dto.request.CreateUserRequest;
-import dev.kostya.ticketplatform.auth.dto.request.UpdateProfileRequest;
-import dev.kostya.ticketplatform.auth.dto.request.UpdateUserRequest;
+import dev.kostya.ticketplatform.auth.dto.request.*;
 import dev.kostya.ticketplatform.auth.dto.response.UserPageResponse;
 import dev.kostya.ticketplatform.auth.dto.response.UserResponse;
 import dev.kostya.ticketplatform.auth.security.UserPrincipal;
@@ -66,6 +63,7 @@ public class UsersController {
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public UserPageResponse getUsers(
+            @ModelAttribute UserFilter filter,
             @PageableDefault(
                     size = 20,
                     sort = "createdAt",

@@ -1,9 +1,7 @@
 package dev.kostya.ticketplatform.auth.services;
 
-import dev.kostya.ticketplatform.auth.dto.request.ChangePasswordRequest;
-import dev.kostya.ticketplatform.auth.dto.request.CreateUserRequest;
-import dev.kostya.ticketplatform.auth.dto.request.UpdateProfileRequest;
-import dev.kostya.ticketplatform.auth.dto.request.UpdateUserRequest;
+import dev.kostya.ticketplatform.auth.dto.request.*;
+import dev.kostya.ticketplatform.auth.dto.response.PageResponse;
 import dev.kostya.ticketplatform.auth.dto.response.UserPageResponse;
 import dev.kostya.ticketplatform.auth.dto.response.UserResponse;
 import dev.kostya.ticketplatform.auth.entity.User;
@@ -11,16 +9,19 @@ import dev.kostya.ticketplatform.auth.enums.UserStatus;
 import dev.kostya.ticketplatform.auth.exception.*;
 import dev.kostya.ticketplatform.auth.mapper.UserMapper;
 import dev.kostya.ticketplatform.auth.repositories.UserRepository;
+import dev.kostya.ticketplatform.auth.specifications.UserSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -81,9 +82,16 @@ public class UserServiceImpl implements UserService {
 
         user.setStatus(UserStatus.DELETED);
 
+        UUID operationId = UUID.randomUUID();
+
         long timestamp = System.currentTimeMillis();
         user.setUsername("deleted@" + timestamp + "_" + user.getUsername());
         user.setEmail("deleted." + timestamp + "." + user.getEmail());
+        user.setDeletedAt(Instant.now());
+        user.setDeletionOperationId(operationId);
+
+        // Каскадный вызов микросерсвисов для удаления связаннх сущностей
+        // В частности Scope Table
     }
 
     @Transactional

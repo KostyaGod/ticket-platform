@@ -3,11 +3,12 @@ package dev.kostya.ticketplatform.event.entity;
 import dev.kostya.ticketplatform.event.enums.EventSessionStatus;
 import jakarta.persistence.*;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "event_sessions")
-public class EventSession {
+public class EventSession extends SoftDeletableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "event_session_seq")
     @SequenceGenerator(
@@ -17,30 +18,37 @@ public class EventSession {
     )
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "event_id", nullable = false)
-    private Event event;
+    @Column(name = "event_id", nullable = false)
+    private Long eventId;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "hall_id", nullable = false)
-    private Hall hall;
+    @Column(name = "hall_id", nullable = false)
+    private Long hallId;
+
+    @Column(name = "venue_id", nullable = false)
+    private Long venueId;
+
+    @Column(name = "city_id", nullable = false)
+    private Long cityId;
+
+    @Column(name = "organization_id", nullable = false)
+    private Long organizationId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private EventSessionStatus status;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
     @Column(name = "sales_start_at", nullable = false)
-    private LocalDateTime salesStartAt;
+    private Instant salesStartAt;
 
     @Column(name = "sales_end_at", nullable = false)
-    private LocalDateTime salesEndAt;
+    private Instant salesEndAt;
 
     @Column(name = "start_at", nullable = false)
-    private LocalDateTime startAt;
+    private Instant startAt;
 
     @Column(name = "end_at", nullable = false)
-    private LocalDateTime endAt;
+    private Instant endAt;
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 }

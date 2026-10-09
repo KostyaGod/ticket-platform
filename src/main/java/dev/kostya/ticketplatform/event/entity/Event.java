@@ -1,10 +1,12 @@
 package dev.kostya.ticketplatform.event.entity;
 
+import dev.kostya.ticketplatform.event.enums.EntityStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +15,7 @@ import java.util.List;
 @Table(name = "events")
 @Getter @Setter
 @NoArgsConstructor
-public class Event {
+public class Event extends SoftDeletableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "event_seq")
     @SequenceGenerator(
@@ -36,6 +38,13 @@ public class Event {
     private Integer ageLimit;
 
     private String organizer;
+
+    @Column(name = "release_date")
+    private LocalDate releaseDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EntityStatus status;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
