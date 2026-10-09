@@ -1,4 +1,4 @@
-package dev.kostya.ticketplatform.event.services;
+package dev.kostya.ticketplatform.infrastructure.services;
 
 import org.springframework.stereotype.Service;
 

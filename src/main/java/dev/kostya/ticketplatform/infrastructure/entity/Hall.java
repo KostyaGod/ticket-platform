@@ -1,5 +1,6 @@
-package dev.kostya.ticketplatform.event.entity;
+package dev.kostya.ticketplatform.infrastructure.entity;
 
+import dev.kostya.ticketplatform.infrastructure.enums.EntityStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,7 @@ import java.util.List;
 @Table(name = "halls")
 @Getter @Setter
 @NoArgsConstructor
-public class Hall {
+public class Hall extends SoftDeletableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hall_seq")
     @SequenceGenerator(
@@ -30,12 +31,15 @@ public class Hall {
     @Column(nullable = false)
     private String name;
 
+    @Enumerated(EnumType.STRING)
+    private EntityStatus status;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "hall")
     private List<Seat> seats = new ArrayList<>();
 
-    @OneToMany(mappedBy = "hall")
-    private List<EventSession> eventSessions = new ArrayList<>();
+//    @OneToMany(mappedBy = "hall")
+//    private List<EventSession> eventSessions = new ArrayList<>();
 }
