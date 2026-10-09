@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "users")
-public class User {
+public class User extends SoftDeletableEntity {
     @Id
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
@@ -44,9 +44,4 @@ public class User {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
 }

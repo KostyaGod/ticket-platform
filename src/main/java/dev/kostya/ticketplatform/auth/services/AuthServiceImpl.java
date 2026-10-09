@@ -71,8 +71,6 @@ public class AuthServiceImpl implements AuthService {
         user.setPasswordHash(
                 passwordEncoder.encode(request.password())
         );
-        user.setRole(Role.ROLE_CLIENT);
-        user.setStatus(UserStatus.ACTIVE);
 
         User saved = repository.save(user);
 

@@ -106,8 +106,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserPageResponse getUsers(Pageable pageable) {
-        Page<User> userPage = repository.findAll(pageable);
+    public UserPageResponse getUsers(UserFilter filter, Pageable pageable) {
+        Specification<User> spec = UserSpecification.build(filter);
+        Page<User> userPage = repository.findAll(spec, pageable);
 
         List<UserResponse> users = userPage.getContent().stream()
                 .map(mapper::toResponse)
@@ -115,11 +116,13 @@ public class UserServiceImpl implements UserService {
 
         return new UserPageResponse(
                 users,
-                userPage.getNumber(),
-                userPage.getSize(),
-                userPage.getTotalElements(),
-                userPage.getTotalPages(),
-                userPage.hasNext()
+                new PageResponse(
+                        userPage.getNumber(),
+                        userPage.getSize(),
+                        userPage.getTotalElements(),
+                        userPage.getTotalPages(),
+                        userPage.hasNext()
+                )
         );
     }
 

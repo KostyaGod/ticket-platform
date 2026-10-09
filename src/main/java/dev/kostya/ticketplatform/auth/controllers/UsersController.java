@@ -70,10 +70,9 @@ public class UsersController {
                     size = 20,
                     sort = "createdAt",
                     direction = Sort.Direction.DESC
-            )
-            Pageable pageable
+            ) Pageable pageable
     ) {
-        return userService.getUsers(pageable);
+        return userService.getUsers(filter, pageable);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
