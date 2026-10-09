@@ -1,25 +1,29 @@
 package dev.kostya.ticketplatform.event.controllers;
 
+import dev.kostya.ticketplatform.event.dto.request.EventCatalogFilter;
 import dev.kostya.ticketplatform.event.services.EventService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.*;
+
+import java.awt.print.Pageable;
 
 @RestController
-@RequestMapping("/event")
+@RequestMapping("/events")
 @RequiredArgsConstructor
 public class EventController {
     public final EventService eventService;
 
     @GetMapping()
     public ResponseEntity<?> getEvents(
-            @PathVariable Integer page,
-            @PathVariable Integer size,
-            @PathVariable Long cityId
+            @ModelAttribute EventCatalogFilter filter,
+            @PageableDefault(
+                    size = 20,
+                    sort = "id",
+                    direction = Sort.Direction.ASC
+            ) Pageable pageable
     ) {
-
+        return null;
     }
 }
