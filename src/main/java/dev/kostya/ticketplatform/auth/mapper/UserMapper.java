@@ -32,7 +32,11 @@ public interface UserMapper {
 
     UserResponse toResponse(User entity);
 
-    @InheritInverseConfiguration(name = "toEntity")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "passwordHash", ignore = true)
+    @Mapping(target = "role",  ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(UpdateProfileRequest dto, @MappingTarget User entity);
 

@@ -4,7 +4,6 @@ import dev.kostya.ticketplatform.auth.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.Session;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,13 +13,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-@Getter @Setter
-@AllArgsConstructor
+@Getter
 public class UserPrincipal implements UserDetails {
     private final Long id;
     private final Role role;
+    @Setter
     private UUID sessionId;
     private final Collection<? extends GrantedAuthority> authorities;
+
+    public UserPrincipal(Long id, Role role) {
+        this(id, role, null);
+    }
 
     public UserPrincipal(Long id, Role role, UUID sessionId) {
         this.id = id;
