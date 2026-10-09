@@ -1,5 +1,6 @@
 package dev.kostya.ticketplatform.auth.services;
 
+import dev.kostya.ticketplatform.auth.dto.response.SessionResponse;
 import dev.kostya.ticketplatform.auth.enums.Role;
 import dev.kostya.ticketplatform.auth.repositories.SessionRepository;
 import dev.kostya.ticketplatform.auth.security.JwtProperties;
@@ -11,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,7 +29,7 @@ public class SessionServiceImplTest {
     @InjectMocks
     private SessionServiceImpl sessionService;
 
-    private final long id = 1L;
+    private final Long id = 1L;
     private final UUID sessionId = UUID.randomUUID();
     private final UUID jti = UUID.randomUUID();
 
@@ -143,4 +145,41 @@ public class SessionServiceImplTest {
         verify(repository).save(session);
     }
 
+    @Test
+    void getSessions_shouldReturnSessions() {
+        List<SessionResponse> sessionResponses = List.of(
+                new SessionResponse(
+                        UUID.randomUUID(),
+                        System.currentTimeMillis(),
+                        System.currentTimeMillis() + 60_000,
+                        false
+                ),
+                new SessionResponse(
+                        UUID.randomUUID(),
+                        System.currentTimeMillis(),
+                        System.currentTimeMillis() + 60_000,
+                        false
+                ),
+                new SessionResponse(
+                        UUID.randomUUID(),
+                        System.currentTimeMillis(),
+                        System.currentTimeMillis() + 60_000,
+                        false
+                ),
+                new SessionResponse(
+                        UUID.randomUUID(),
+                        System.currentTimeMillis(),
+                        System.currentTimeMillis() + 60_000,
+                        true
+                )
+        );
+
+        when(repository.findAllByUserId(id, sessionId))
+                .thenReturn(sessionResponses);
+
+        List<SessionResponse> result = sessionService.getSessions(id, sessionId);
+
+        assertEquals(sessionResponses, result);
+        verify(repository).findAllByUserId(id, sessionId);
+    }
 }

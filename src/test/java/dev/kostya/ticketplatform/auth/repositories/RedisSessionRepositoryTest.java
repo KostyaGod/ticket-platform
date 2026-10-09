@@ -1,5 +1,6 @@
 package dev.kostya.ticketplatform.auth.repositories;
 
+import dev.kostya.ticketplatform.auth.exception.SessionNotFoundException;
 import dev.kostya.ticketplatform.auth.security.Session;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,8 +15,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -145,6 +145,11 @@ public class RedisSessionRepositoryTest {
         when(redisTemplate.opsForSet())
                 .thenReturn(setOperations);
 
+        when(setOperations.isMember(
+                SESSION_KEY_PREFIX + session.getSessionId(),
+                USER_KEY_PREFIX + session.getUserId()
+        )).thenReturn(Boolean.TRUE);
+
         repository.delete(session.getSessionId(), session.getUserId());
 
         verify(redisTemplate).delete(
@@ -158,17 +163,62 @@ public class RedisSessionRepositoryTest {
     }
 
     @Test
+    void delete_shouldThrowException_whenSessionIdDoesNotBelongToUserId() {
+        when(redisTemplate.opsForSet())
+                .thenReturn(setOperations);
+
+        when(setOperations.isMember(
+                SESSION_KEY_PREFIX + session.getSessionId(),
+                USER_KEY_PREFIX + session.getUserId()
+        )).thenReturn(Boolean.FALSE);
+
+        assertThrows(
+                SessionNotFoundException.class,
+                () -> repository.delete(
+                        session.getSessionId(),
+                        session.getUserId())
+        );
+
+        verify(redisTemplate, never())
+                .delete(anyString());
+        verify(setOperations, never())
+                .remove(any());
+    }
+
+    @Test
+    void existsBySessionIdAndUserId_success() {
+        when(redisTemplate.opsForSet())
+                .thenReturn(setOperations);
+
+        when(setOperations.isMember(
+                SESSION_KEY_PREFIX + session.getSessionId(),
+                USER_KEY_PREFIX + session.getUserId()
+        )).thenReturn(Boolean.TRUE);
+
+        boolean result = repository.existsBySessionIdAndUserId(
+                session.getSessionId(),
+                session.getUserId()
+        );
+
+        assertTrue(result);
+    }
+
+    @Test
     void findSessionIdsByUserId_success() {
         UUID secondSessionId = UUID.randomUUID();
 
         when(redisTemplate.opsForSet())
                 .thenReturn(setOperations);
 
+        Set<String> set = new HashSet<>();
+        set.add(session.getSessionId().toString());
+        set.add(secondSessionId.toString());
+
         when(setOperations.members(USER_KEY_PREFIX + session.getUserId()))
-                .thenReturn(Set.of(
-                        session.getSessionId().toString(),
-                        secondSessionId.toString()
-                ));
+                .thenReturn(set);
+
+        when(redisTemplate.hasKey(any()))
+                .thenReturn(Boolean.TRUE);
 
         Set<UUID> result =
                 repository.findSessionIdsByUserId(session.getUserId());
@@ -200,11 +250,15 @@ public class RedisSessionRepositoryTest {
         when(redisTemplate.opsForSet())
                 .thenReturn(setOperations);
 
+        Set<String> set = new HashSet<>();
+        set.add(session.getSessionId().toString());
+        set.add(secondSessionId.toString());
+
         when(setOperations.members(USER_KEY_PREFIX + session.getUserId()))
-                .thenReturn(Set.of(
-                        session.getSessionId().toString(),
-                        secondSessionId.toString()
-                ));
+                .thenReturn(set);
+
+        when(redisTemplate.hasKey(any()))
+                .thenReturn(Boolean.TRUE);
 
         repository.deleteAllByUserId(session.getUserId());
 

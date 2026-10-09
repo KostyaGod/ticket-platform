@@ -5,6 +5,7 @@ import dev.kostya.ticketplatform.auth.security.UserPrincipal;
 import dev.kostya.ticketplatform.auth.services.SessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,7 @@ public class SessionController {
 
     @GetMapping("/me")
     @ResponseStatus(HttpStatus.OK)
-    public List<SessionResponse> getAllSessions(
+    public List<SessionResponse> getAllMySessions(
             @AuthenticationPrincipal UserPrincipal principal
     ) {
         return sessionService.getSessions(
@@ -28,9 +29,9 @@ public class SessionController {
         );
     }
 
-    @DeleteMapping("/{sessionId}")
+    @DeleteMapping("/me/{sessionId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteSession(
+    public void deleteMySession(
             @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable UUID sessionId
     ) {
@@ -40,11 +41,33 @@ public class SessionController {
         );
     }
 
-    @DeleteMapping()
+    @DeleteMapping("/me")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAllSessions(
+    public void deleteAllMySessions(
             @AuthenticationPrincipal UserPrincipal principal
     ) {
         sessionService.deleteAllSessions(principal.getId());
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
+    @DeleteMapping("/admin/{userId}/{sessionId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteSession(
+            @PathVariable Long userId,
+            @PathVariable UUID sessionId
+    ) {
+        sessionService.deleteSession(
+                sessionId,
+                userId
+        );
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
+    @DeleteMapping("/admin/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAllSession(
+            @PathVariable Long userId
+    ) {
+        sessionService.deleteAllSessions(userId);
     }
 }
