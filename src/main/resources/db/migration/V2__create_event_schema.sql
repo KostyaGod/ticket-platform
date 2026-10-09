@@ -10,22 +10,24 @@ CREATE TABLE cities
 (
     id         BIGINT                      NOT NULL DEFAULT nextval('city_seq'),
     name       VARCHAR(255)                NOT NULL,
+    timezone   VARCHAR(64)                 NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT pk_cities PRIMARY KEY (id)
 );
 
 CREATE TABLE venues
 (
-    id         BIGINT                      NOT NULL DEFAULT nextval('venue_seq'),
-    city_id    BIGINT                      NOT NULL,
-    name       VARCHAR(255)                NOT NULL,
-    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    id              BIGINT                      NOT NULL DEFAULT nextval('venue_seq'),
+    city_id         BIGINT                      NOT NULL,
+    organization_id BIGINT                      NOT NULL,
+    name            VARCHAR(255)                NOT NULL,
+    created_at      TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT pk_venues PRIMARY KEY (id),
     CONSTRAINT fk_venues_city
         FOREIGN KEY (city_id)
-            REFERENCES cities (id)
-            ON DELETE CASCADE,
+            REFERENCES cities (id),
 
     CONSTRAINT uq_venues_city_name
         UNIQUE (city_id, name)
@@ -33,6 +35,9 @@ CREATE TABLE venues
 
 CREATE INDEX idx_venues_city_id
     ON venues (city_id);
+
+CREATE INDEX idx_venues_organization_id
+    ON venues (organization_id);
 
 
 CREATE TABLE halls
@@ -45,8 +50,7 @@ CREATE TABLE halls
     CONSTRAINT pk_halls PRIMARY KEY (id),
     CONSTRAINT fk_halls_venue
         FOREIGN KEY (venue_id)
-            REFERENCES venues (id)
-            ON DELETE CASCADE,
+            REFERENCES venues (id),
 
     CONSTRAINT uq_halls_venue_name
         UNIQUE (venue_id, name)
@@ -62,12 +66,12 @@ CREATE TABLE seats
     hall_id     BIGINT NOT NULL,
     row_number  INTEGER NOT NULL,
     seat_number INTEGER NOT NULL,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT pk_seats PRIMARY KEY (id),
     CONSTRAINT fk_seats_hall
         FOREIGN KEY (hall_id)
-            REFERENCES halls (id)
-            ON DELETE CASCADE,
+            REFERENCES halls (id),
 
     CONSTRAINT uq_seats_hall_row_number
         UNIQUE (hall_id, row_number, seat_number)
@@ -79,14 +83,15 @@ CREATE INDEX idx_seats_hall_id
 
 CREATE TABLE events
 (
-    id          BIGINT                      NOT NULL DEFAULT nextval('event_seq'),
-    title       VARCHAR(255)                NOT NULL,
-    description TEXT,
-    duration    INTEGER,
-    category    VARCHAR(100),
-    age_limit   INTEGER,
-    organizer   VARCHAR(255),
-    created_at  TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    id              BIGINT                      NOT NULL DEFAULT nextval('event_seq'),
+    title           VARCHAR(255)                NOT NULL,
+    description     TEXT,
+    duration        INTEGER,
+    category        VARCHAR(100),
+    age_limit       INTEGER,
+    organizer       VARCHAR(255),
+    release_date    DATE,
+    created_at      TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT pk_events PRIMARY KEY (id)
 );
@@ -94,27 +99,24 @@ CREATE TABLE events
 
 CREATE TABLE event_sessions
 (
-    id             BIGINT                      NOT NULL DEFAULT nextval('event_session_seq'),
-    event_id       BIGINT                      NOT NULL,
-    hall_id        BIGINT                      NOT NULL,
-    status         VARCHAR(50)                 NOT NULL,
-    created_at     TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    sales_start_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    sales_end_at   TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    start_at       TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    end_at         TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    id              BIGINT                      NOT NULL DEFAULT nextval('event_session_seq'),
+    event_id        BIGINT                      NOT NULL,
+    hall_id         BIGINT                      NOT NULL,
+    venue_id        BIGINT                      NOT NULL,
+    city_id         BIGINT                      NOT NULL,
+    organization_id BIGINT                      NOT NULL,
+    status          VARCHAR(50)                 NOT NULL,
+    sales_start_at  TIMESTAMPTZ                 NOT NULL,
+    sales_end_at    TIMESTAMPTZ                 NOT NULL,
+    start_at        TIMESTAMPTZ                 NOT NULL,
+    end_at          TIMESTAMPTZ                 NOT NULL,
+    created_at      TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT pk_event_sessions PRIMARY KEY (id),
 
     CONSTRAINT fk_event_sessions_event
         FOREIGN KEY (event_id)
-            REFERENCES events (id)
-            ON DELETE CASCADE,
-
-    CONSTRAINT fk_event_sessions_hall
-        FOREIGN KEY (hall_id)
-            REFERENCES halls (id)
-            ON DELETE RESTRICT,
+            REFERENCES events (id),
 
     CONSTRAINT chk_event_sessions_sales_period
         CHECK (sales_start_at < sales_end_at),
@@ -129,5 +131,11 @@ CREATE INDEX idx_event_sessions_event_id
 CREATE INDEX idx_event_sessions_hall_id
     ON event_sessions (hall_id);
 
-CREATE INDEX idx_event_sessions_start_at
-    ON event_sessions (start_at);
+CREATE INDEX idx_event_sessions_city_status_start
+    ON event_sessions (city_id, status, start_at);
+
+CREATE INDEX idx_event_sessions_organization_city_status_start
+    ON event_sessions (organization_id, city_id, status, start_at);
+
+CREATE INDEX idx_event_sessions_venue_id
+    ON event_sessions (venue_id);

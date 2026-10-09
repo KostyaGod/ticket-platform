@@ -1,0 +1,5 @@
+ALTER TABLE users
+    ALTER COLUMN role SET DEFAULT 'ROLE_CLIENT',
+    ALTER COLUMN status SET DEFAULT 'ACTIVE',
+    ADD COLUMN deleted_at TIMESTAMPTZ,
+    ADD COLUMN deletion_operation_id UUID;
