@@ -2,6 +2,7 @@ package dev.kostya.ticketplatform.auth.security;
 
 import dev.kostya.ticketplatform.auth.enums.Role;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;
@@ -14,6 +15,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Getter
+@Builder
+@AllArgsConstructor
 public class UserPrincipal implements UserDetails {
     private final Long id;
     private final Role role;

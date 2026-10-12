@@ -4,6 +4,7 @@ import dev.kostya.ticketplatform.auth.dto.response.SessionResponse;
 import dev.kostya.ticketplatform.auth.security.UserPrincipal;
 import dev.kostya.ticketplatform.auth.services.SessionService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/sessions")
 @RequiredArgsConstructor
@@ -50,7 +52,7 @@ public class SessionController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
-    @DeleteMapping("/admin/{userId}/{sessionId}")
+    @DeleteMapping("/{userId}/{sessionId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteSession(
             @PathVariable Long userId,
@@ -63,7 +65,7 @@ public class SessionController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
-    @DeleteMapping("/admin/{userId}")
+    @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAllSession(
             @PathVariable Long userId

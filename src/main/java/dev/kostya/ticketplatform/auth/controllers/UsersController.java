@@ -50,6 +50,26 @@ public class UsersController {
         sessionService.deleteAllSessions(principal.getId());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProfile(
+            @PathVariable Long id
+    ) {
+        userService.deleteById(id);
+        sessionService.deleteAllSessions(id);
+    }
+
+    /// In progress
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/{id}/restore")
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponse restoreUser(
+            @PathVariable Long id
+    ) {
+        return null;
+    }
+
     @PatchMapping("/me/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(

@@ -4,16 +4,13 @@ import dev.kostya.ticketplatform.auth.dto.request.LoginRequest;
 import dev.kostya.ticketplatform.auth.dto.request.RegisterRequest;
 import dev.kostya.ticketplatform.auth.exception.InvalidCredentialsException;
 import dev.kostya.ticketplatform.auth.services.CookieService;
-import dev.kostya.ticketplatform.auth.services.JwtService;
 import dev.kostya.ticketplatform.auth.security.Tokens;
 import dev.kostya.ticketplatform.auth.services.AuthService;
-import dev.kostya.ticketplatform.auth.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -54,7 +51,7 @@ public class AuthController {
         addCookies(response, tokens);
     }
 
-    @PostMapping("/logout")
+    @GetMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void logout(
             HttpServletResponse response,

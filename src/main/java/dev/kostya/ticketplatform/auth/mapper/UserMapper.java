@@ -37,12 +37,16 @@ public interface UserMapper {
     @Mapping(target = "role",  ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "deletionOperationId", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(UpdateProfileRequest dto, @MappingTarget User entity);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "passwordHash", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "deletionOperationId", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(UpdateUserRequest dto, @MappingTarget User entity);
 }

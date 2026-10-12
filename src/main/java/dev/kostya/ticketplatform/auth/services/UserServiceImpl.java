@@ -5,7 +5,6 @@ import dev.kostya.ticketplatform.auth.dto.response.PageResponse;
 import dev.kostya.ticketplatform.auth.dto.response.UserPageResponse;
 import dev.kostya.ticketplatform.auth.dto.response.UserResponse;
 import dev.kostya.ticketplatform.auth.entity.User;
-import dev.kostya.ticketplatform.auth.enums.UserStatus;
 import dev.kostya.ticketplatform.auth.exception.*;
 import dev.kostya.ticketplatform.auth.mapper.UserMapper;
 import dev.kostya.ticketplatform.auth.repositories.UserRepository;
@@ -18,7 +17,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -80,15 +78,12 @@ public class UserServiceImpl implements UserService {
         User user = repository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
 
-        user.setStatus(UserStatus.DELETED);
-
         UUID operationId = UUID.randomUUID();
 
         long timestamp = System.currentTimeMillis();
         user.setUsername("deleted@" + timestamp + "_" + user.getUsername());
         user.setEmail("deleted." + timestamp + "." + user.getEmail());
-        user.setDeletedAt(Instant.now());
-        user.setDeletionOperationId(operationId);
+        user.markDeleted(operationId);
 
         // Каскадный вызов микросерсвисов для удаления связаннх сущностей
         // В частности Scope Table

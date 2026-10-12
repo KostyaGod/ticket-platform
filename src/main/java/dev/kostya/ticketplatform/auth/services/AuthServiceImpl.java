@@ -106,9 +106,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void logout(String refreshToken) {
-        UUID oldJti = jwtService.extractJTI(refreshToken);
+        UUID jti = jwtService.extractJTI(refreshToken);
         UUID sessionId = jwtService.extractSessionIdRefresh(refreshToken);
-        if (!sessionService.validate(sessionId, oldJti)) {
+        if (!sessionService.validate(sessionId, jti)) {
             throw new InvalidCredentialsException();
         }
 
