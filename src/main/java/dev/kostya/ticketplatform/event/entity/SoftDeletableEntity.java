@@ -13,8 +13,29 @@ import java.util.UUID;
 public abstract class SoftDeletableEntity {
 
     @Column(name = "deleted_at")
-    private Instant deletedAt;
+    protected Instant deletedAt;
 
     @Column(name = "deletion_operation_id")
-    private UUID deletionOperationId;
+    protected UUID deletionOperationId;
+
+    public boolean isDeleted() {
+        return this.deletedAt != null;
+    }
+
+    public void markDeleted(UUID operationId) {
+        this.deletedAt = Instant.now();
+        this.deletionOperationId = operationId;
+    }
+
+    public UUID markDeleted() {
+        UUID deletionOperationId = UUID.randomUUID();
+        markDeleted(deletionOperationId);
+
+        return deletionOperationId;
+    }
+
+    public void restore() {
+        this.deletedAt = null;
+        this.deletionOperationId = null;
+    }
 }

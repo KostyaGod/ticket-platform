@@ -1,6 +1,7 @@
 package dev.kostya.ticketplatform.event.specifications;
 
 import dev.kostya.ticketplatform.event.dto.request.EventCatalogFilter;
+import dev.kostya.ticketplatform.event.dto.request.EventFilter;
 import dev.kostya.ticketplatform.event.entity.Event;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -10,29 +11,23 @@ import static dev.kostya.ticketplatform.event.specifications.SpecificationSuppor
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class EventSpecification {
-    public static Specification<Event> build(EventCatalogFilter filter) {
+    public static Specification<Event> forCatalog(EventCatalogFilter filter) {
+        return Specification
+                .<Event>where(stringContains("title", filter.title()))
+                .and(stringContains("description", filter.description()))
+                .and(stringContains("category", filter.category()))
+                .and(greaterThanOrEqualTo("ageLimit", filter.ageLimit()));
+    }
+
+    public static Specification<Event> forFilter(EventFilter filter) {
         return Specification
                 .<Event>where(stringContains("title", filter.title()))
                 .and(stringContains("description", filter.description()))
                 .and(stringContains("category", filter.category()))
                 .and(greaterThanOrEqualTo("ageLimit", filter.ageLimit()))
-                .and(stringContains("organizer", filter.organizer()));
-    }
-
-    private static Specification<Event> cityEquals(Long cityId) {
-        return (root, query, cb) -> {
-            if (cityId == null) return null;
-
-            query.distinct(true);
-
-            return cb.equal(
-                    root.join("event_sessions")
-                            .join("hall")
-                            .join("venue")
-                            .join("city")
-                            .get("id"),
-                    cityId
-            );
-        };
+                .and(between("releaseDate", filter.releaseDateAfter(), filter.releaseDateBefore()))
+                .and(equalTo("status", filter.status()))
+                .and(between("createAt", filter.createdAfter(), filter.createdBefore()))
+                .and(filterByDeleted(filter.deletedFilter()));
     }
 }

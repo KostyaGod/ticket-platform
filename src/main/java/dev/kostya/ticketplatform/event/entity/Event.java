@@ -28,7 +28,7 @@ public class Event extends SoftDeletableEntity {
     @Column(nullable = false)
     private String title;
 
-    @Lob
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
     @Column(length = 100)
@@ -46,7 +46,7 @@ public class Event extends SoftDeletableEntity {
     @Column(nullable = false)
     private EntityStatus status;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "event")

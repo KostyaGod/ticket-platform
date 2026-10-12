@@ -1,5 +1,7 @@
 package dev.kostya.ticketplatform.event.specifications;
 
+import dev.kostya.ticketplatform.event.entity.SoftDeletableEntity;
+import dev.kostya.ticketplatform.event.enums.DeletedViewFilter;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
@@ -79,5 +81,17 @@ public final class SpecificationSupport {
 
         return (root, query, cb) ->
                 cb.between(root.get(field), from, to);
+    }
+
+    public static <T extends SoftDeletableEntity> Specification<T> filterByDeleted(
+            DeletedViewFilter filter
+    ) {
+        if (filter == null || filter.equals(DeletedViewFilter.ALL)) return null;
+
+        return (root, query, cb) -> switch (filter) {
+            case ACTIVE_ONLY -> cb.isNull(root.get("deletedAt"));
+            case DELETED_ONLY -> cb.isNotNull(root.get("deletedAt"));
+            default -> null;
+        };
     }
 }

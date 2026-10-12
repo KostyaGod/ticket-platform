@@ -10,7 +10,10 @@ import java.time.LocalDateTime;
 @Table(name = "event_sessions")
 public class EventSession extends SoftDeletableEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "event_session_seq")
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "event_session_seq"
+    )
     @SequenceGenerator(
             name = "event_session_seq",
             sequenceName = "event_session_seq",
@@ -18,8 +21,9 @@ public class EventSession extends SoftDeletableEntity {
     )
     private Long id;
 
-    @Column(name = "event_id", nullable = false)
-    private Long eventId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "event_id", nullable = false)
+    private Event event;
 
     @Column(name = "hall_id", nullable = false)
     private Long hallId;
@@ -49,6 +53,6 @@ public class EventSession extends SoftDeletableEntity {
     @Column(name = "end_at", nullable = false)
     private Instant endAt;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     private LocalDateTime createdAt;
 }
