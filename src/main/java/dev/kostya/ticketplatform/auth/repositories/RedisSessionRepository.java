@@ -5,6 +5,9 @@ import dev.kostya.ticketplatform.auth.exception.SessionNotFoundException;
 import dev.kostya.ticketplatform.auth.security.JwtProperties;
 import dev.kostya.ticketplatform.auth.security.Session;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -12,6 +15,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Log4j2
 @Repository
 @RequiredArgsConstructor
 public class RedisSessionRepository implements SessionRepository {
@@ -100,25 +104,26 @@ public class RedisSessionRepository implements SessionRepository {
     public void deleteAllByUserId(Long userId) {
         String userKey = userKey(userId);
 
-        Set<String> sessionIds = getAndCleanUpSessionsSet(userId);
+        Set<String> sessionIds = redisTemplate.opsForSet()
+                .members(userKey);
 
-        if (sessionIds != null && !sessionIds.isEmpty()) {
-            redisTemplate.delete(
-                    sessionIds.stream()
-                            .map(this::sessionKey)
-                            .collect(Collectors.toList()
-                            )
-            );
-
+        if (sessionIds == null || sessionIds.isEmpty()) {
             redisTemplate.delete(userKey);
+            return;
         }
+
+        List<String> keys = sessionIds.stream()
+                .map(this::sessionKey)
+                .collect(Collectors.toList());
+
+        keys.add(userKey);
+
+        redisTemplate.delete(keys);
     }
 
     @Override
     public Set<UUID> findSessionIdsByUserId(Long userId) {
         Set<String> sessionIds = getAndCleanUpSessionsSet(userId);
-
-        if (sessionIds == null) return Set.of();
 
         return sessionIds.stream()
                 .map(UUID::fromString)
@@ -130,40 +135,123 @@ public class RedisSessionRepository implements SessionRepository {
             Long userId,
             UUID currentSessionId
     ) {
-        Set<String> sessionIds = getAndCleanUpSessionsSet(userId);
+        String userKey = userKey(userId);
+
+        Set<String> sessionIds = redisTemplate.opsForSet()
+                .members(userKey);
 
         if (sessionIds == null || sessionIds.isEmpty()) {
             return List.of();
         }
 
-        return sessionIds.stream()
-                .map(id -> {
-                    UUID sessionId = UUID.fromString(id);
-                    Map<Object, Object> data =
-                            redisTemplate.opsForHash().entries(sessionKey(id));
+        List<String> sessionIdList = new ArrayList<>(sessionIds);
 
-                    if (data.isEmpty()) return null;
+        List<Object> results = redisTemplate.executePipelined(
+                (RedisCallback<Object>) connection -> {
+                    byte[] keySerializer;
+                    for (String id : sessionIdList) {
+                        keySerializer = redisTemplate.getStringSerializer()
+                                .serialize(sessionKey(id));
 
-                    return new SessionResponse(
-                            sessionId,
-                            Long.parseLong((String) data.get(CREATED_AT_FIELD)),
-                            Long.parseLong((String) data.get(EXPIRES_AT_FIELD)),
-                            Objects.equals(currentSessionId, sessionId)
-                    );
-                })
-                .filter(Objects::nonNull)
-                .toList();
+                        connection.hashCommands().hGetAll(keySerializer);
+                    }
+
+                    return null;
+                }
+        );
+
+        List<String> expiredSessionIds = new ArrayList<>();
+        List<SessionResponse> responses = new ArrayList<>();
+
+        for (int i = 0; i < sessionIdList.size(); i++) {
+            String id = sessionIdList.get(i);
+
+            @SuppressWarnings("unchecked")
+            Map<Object, Object> data = (Map<Object, Object>) results.get(i);
+
+            if (data == null || data.isEmpty()) {
+                expiredSessionIds.add(id);
+                continue;
+            }
+
+            UUID sessionId = UUID.fromString(id);
+            responses.add(new SessionResponse(
+                    sessionId,
+                    Long.parseLong((String) data.get(CREATED_AT_FIELD)),
+                    Long.parseLong((String) data.get(EXPIRES_AT_FIELD)),
+                    Objects.equals(currentSessionId, sessionId)
+            ));
+        }
+
+        if (!expiredSessionIds.isEmpty()) {
+            redisTemplate.opsForSet().remove(
+                    userKey,
+                    expiredSessionIds.toArray()
+            );
+        }
+
+        return responses;
     }
 
     @Override
     public boolean existsBySessionIdAndUserId(UUID sessionId, Long userId) {
-        return Boolean.TRUE.equals(
-                redisTemplate.opsForSet().isMember(
-                        sessionKey(sessionId),
-                        userKey(userId
-                        )
-                )
+        String savedUserId = (String) redisTemplate.opsForHash().get(
+                sessionKey(sessionId),
+                USER_ID_FIELD
         );
+
+        return Objects.equals(savedUserId, userId.toString());
+    }
+
+    private Set<String> getAndCleanUpSessionsSet(Long userId) {
+        String userKey = userKey(userId);
+
+        Set<String> sessionIds = redisTemplate.opsForSet()
+                .members(userKey);
+        log.info("SessionIds Before getAndCleanUpSessionsSet: {}", sessionIds);
+
+        if (sessionIds == null || sessionIds.isEmpty()) {
+            return Set.of();
+        }
+
+        List<String> sessionIdList = new ArrayList<>(sessionIds);
+
+        List<Object> results = redisTemplate.executePipelined(
+                (RedisCallback<Object>) connection -> {
+                    byte[] key;
+                    for (String id : sessionIdList) {
+                        key = redisTemplate.getStringSerializer()
+                                .serialize(sessionKey(id));
+
+                        connection.keyCommands().exists(key);
+                    }
+                    return null;
+                }
+        );
+
+        log.info("Result: {}", results);
+
+        List<String> expiredSessionIds = new ArrayList<>();
+        Set<String> activeSessionIds = new HashSet<>();
+
+        for (int i  = 0; i < sessionIdList.size(); i++) {
+            Boolean exists = (Boolean) results.get(i);
+            if (Boolean.FALSE.equals(exists)) {
+                expiredSessionIds.add(sessionIdList.get(i));
+            } else {
+                activeSessionIds.add(sessionIdList.get(i));
+            }
+        }
+
+        if (!expiredSessionIds.isEmpty()) {
+            redisTemplate.opsForSet().remove(
+                    userKey,
+                    expiredSessionIds.toArray()
+            );
+        }
+
+        log.info("SessionIds After getAndCleanUpSessionsSet: {}", sessionIds);
+        return activeSessionIds;
     }
 
     private String sessionKey(String sessionId) {
@@ -182,29 +270,4 @@ public class RedisSessionRepository implements SessionRepository {
         return USER_KEY_PREFIX + userId;
     }
 
-    private Set<String> getAndCleanUpSessionsSet(Long userId) {
-        String userKey = userKey(userId);
-
-        Set<String> sessionIds = redisTemplate.opsForSet()
-                .members(userKey(userId));
-
-        if (sessionIds != null && !sessionIds.isEmpty()) {
-            sessionIds.removeIf(sessionId -> {
-                String key = sessionKey(sessionId);
-
-                if (Boolean.FALSE.equals(redisTemplate.hasKey(key))) {
-                    redisTemplate.opsForSet().remove(
-                            userKey,
-                            sessionId
-                    );
-
-                    return true;
-                }
-
-                return false;
-            });
-        }
-
-        return sessionIds;
-    }
 }
