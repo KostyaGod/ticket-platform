@@ -11,7 +11,6 @@ import dev.kostya.ticketplatform.event.dto.base.PageModel;
 import dev.kostya.ticketplatform.event.entity.Event;
 import dev.kostya.ticketplatform.event.services.EventService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -36,20 +35,20 @@ public class EventController {
                     direction = Sort.Direction.ASC
             ) Pageable pageable
     ) {
-        return eventService.getEventsCatalog(cityId, filter, pageable);
+        return eventService.getCatalog(cityId, filter, pageable);
     }
 
     @GetMapping("/list")
     @ResponseStatus(HttpStatus.OK)
-    public Page<EntityReference<Event>> getEventReferences(
-            @RequestParam String name,
+    public PageModel<EntityReference<Event>> getEventReferences(
+            @RequestParam String nameFilter,
             @PageableDefault(
                     size = 20,
                     sort = "id",
                     direction = Sort.Direction.ASC
             ) Pageable pageable
     ) {
-        return null;
+        return eventService.getReferences(nameFilter, pageable);
     }
 
     @GetMapping("/{id}")
@@ -57,15 +56,13 @@ public class EventController {
     public EventDetailsResponse getEvent(
             @PathVariable Long id
     ) {
-        return null;
+        return eventService.getDetails(id);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    @GetMapping("")
+    @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public PageModel<EventDetailsResponse> getEvents(
-            @RequestParam Long cityId,
-            @RequestParam Long organizationId,
             @ModelAttribute EventFilter filter,
             @PageableDefault(
                     size = 20,
@@ -73,7 +70,7 @@ public class EventController {
                     direction = Sort.Direction.ASC
             ) Pageable pageable
     ) {
-        return null;
+        return eventService.getEvents(filter, pageable);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
@@ -82,7 +79,7 @@ public class EventController {
     public EventDetailsResponse createEvent(
             @RequestBody EventCreateRequest eventRequest
     ) {
-        return null;
+        return eventService.create(eventRequest);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
@@ -92,23 +89,28 @@ public class EventController {
             @PathVariable Long id,
             @RequestBody EventUpdateRequest request
     ) {
-        return null;
+        return eventService.update(id, request);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteEvent(
-            @PathVariable Long id
+            @PathVariable Long id,
+            @RequestParam(required = false, defaultValue = "true")
+            boolean cascade
     ) {
+        eventService.delete(id, cascade);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PostMapping("/{id}/restore")
     @ResponseStatus(HttpStatus.OK)
     public EventDetailsResponse restoreEvent(
-            @PathVariable Long id
+            @PathVariable Long id,
+            @RequestParam(required = false, defaultValue = "true")
+            boolean cascade
     ) {
-        return null;
+        return eventService.restore(id, cascade);
     }
 }
