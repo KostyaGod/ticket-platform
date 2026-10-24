@@ -83,13 +83,9 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException(id));
 
         UUID operationId = UUID.randomUUID();
-
-        long timestamp = System.currentTimeMillis();
-        user.setUsername("deleted@" + timestamp + "_" + user.getUsername());
-        user.setEmail("deleted." + timestamp + "." + user.getEmail());
         user.markDeleted(operationId);
 
-        // Каскадный вызов микросерсвисов для удаления связаннх сущностей
+        // Каскадный вызов микросервисов для удаления связанных сущностей
         // В частности Scope Table
     }
 
@@ -150,6 +146,32 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByEmail(String email) {
         return repository.findByEmail(email).orElse(null);
+    }
+
+    @Transactional
+    @Override
+    public UserResponse restore(Long id, boolean cascade) {
+        User user = repository.findById( id )
+                .orElseThrow( () -> new UserNotFoundException( id ) );
+
+        if ( !user.isDeleted() ) throw new UserNotDeletedException( id );
+
+        UUID operationId = user.restore();
+
+        if ( repository.existsByEmail( user.getEmail() ) ) {
+            throw new RestoreUserException("email");
+        }
+
+        if ( repository.existsByUsername( user.getUsername() ) ) {
+            throw new RestoreUserException("username");
+        }
+
+        if (cascade) {
+            // Каскадный вызов микросервисов для восстановления связанных сущностей
+            // В частности Scope Table
+        }
+
+        return mapper.toResponse( user );
     }
 
     private void validateUniqueness(User currentUser, String newUsername, String newEmail) {

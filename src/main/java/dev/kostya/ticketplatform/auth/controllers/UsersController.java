@@ -67,9 +67,11 @@ public class UsersController {
     @PostMapping("/{id}/restore")
     @ResponseStatus(HttpStatus.OK)
     public UserResponse restoreUser(
-            @PathVariable Long id
+            @PathVariable Long id,
+            @RequestParam(required = false, defaultValue = "true")
+            boolean cascade
     ) {
-        return null;
+        return userService.restore(id, cascade);
     }
 
     @PatchMapping("/me/password")

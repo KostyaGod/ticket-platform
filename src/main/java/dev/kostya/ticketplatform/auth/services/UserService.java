@@ -19,4 +19,6 @@ public interface UserService {
     UserPageResponse getUsers(UserFilter filter, Pageable pageable);
     User findByUsername(String username);
     User findByEmail(String email);
+
+    UserResponse restore(Long id, boolean cascade);
 }

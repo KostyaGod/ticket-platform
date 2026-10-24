@@ -1,6 +1,7 @@
 package dev.kostya.ticketplatform.auth.exception;
 
 import dev.kostya.ticketplatform.auth.dto.response.ErrorResponse;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Log4j2
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -19,14 +21,7 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleInvalidCredentials(
             InvalidCredentialsException ex
     ) {
-        HttpStatus status = HttpStatus.UNAUTHORIZED;
-
-        return new ErrorResponse(
-                status.value(),
-                status.getReasonPhrase(),
-                ex.getMessage(),
-                null
-        );
+        return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
     @ResponseStatus(HttpStatus.CONFLICT)
@@ -34,14 +29,7 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleEmailAlreadyExists(
             EmailAlreadyExistsException ex
     ) {
-        HttpStatus status = HttpStatus.CONFLICT;
-
-        return new ErrorResponse(
-                status.value(),
-                status.getReasonPhrase(),
-                ex.getMessage(),
-                null
-        );
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ResponseStatus(HttpStatus.CONFLICT)
@@ -49,14 +37,7 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleUsernameAlreadyExists(
             UsernameAlreadyExistsException ex
     ) {
-        HttpStatus status = HttpStatus.CONFLICT;
-
-        return new ErrorResponse(
-                status.value(),
-                status.getReasonPhrase(),
-                ex.getMessage(),
-                null
-        );
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     @ResponseStatus(HttpStatus.FORBIDDEN )
@@ -64,14 +45,7 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleUserBlocked(
             UserBlockedException ex
     ) {
-        HttpStatus status = HttpStatus.FORBIDDEN;
-
-        return new ErrorResponse(
-                status.value(),
-                status.getReasonPhrase(),
-                ex.getMessage(),
-                null
-        );
+        return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -79,7 +53,6 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleValidationException(
             MethodArgumentNotValidException ex
     ) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
         Map<String, String> errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -89,9 +62,8 @@ public class GlobalExceptionHandler {
                         (existing, replacement) -> existing
                 ));
 
-        return new ErrorResponse(
-                status.value(),
-                status.getReasonPhrase(),
+        return buildResponse(
+                HttpStatus.BAD_REQUEST,
                 "Validation failed",
                 errors
         );
@@ -102,14 +74,7 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleCurrentPasswordMismatch(
             CurrentPasswordMismatchException ex
     ) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-
-        return new ErrorResponse(
-                status.value(),
-                status.getReasonPhrase(),
-                ex.getMessage(),
-                null
-        );
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -117,14 +82,7 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleNewPasswordMatchesOld(
             NewPasswordMatchesOldException ex
     ) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-
-        return new ErrorResponse(
-                status.value(),
-                status.getReasonPhrase(),
-                ex.getMessage(),
-                null
-        );
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -132,14 +90,7 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleUserNotFound(
             UserNotFoundException ex
     ) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-
-        return new ErrorResponse(
-                status.value(),
-                status.getReasonPhrase(),
-                ex.getMessage(),
-                null
-        );
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -147,14 +98,7 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleSessionNotFound(
             SessionNotFoundException ex
     ) {
-        HttpStatus status = HttpStatus.NOT_FOUND;
-
-        return new ErrorResponse(
-                status.value(),
-                status.getReasonPhrase(),
-                ex.getMessage(),
-                null
-        );
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -162,13 +106,47 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleAdminSelfModification(
             AdminSelfModificationException ex
     ) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
+        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
 
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(RestoreUserException.class)
+    public ErrorResponse handleRestoreUser(
+            RestoreUserException ex
+    ) {
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(UserNotDeletedException.class)
+    public ErrorResponse handleUserNotDeleted(
+            UserNotDeletedException ex
+    ) {
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Exception.class)
+    public ErrorResponse handleAllUncaughtException(Exception ex) {
+        log.error("Unhandled exception occurred", ex);
+
+        return buildResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "An unexpected internal error occurred. " +
+                        "Please try again later."
+        );
+    }
+
+    private ErrorResponse buildResponse(HttpStatus status, String message) {
+        return buildResponse(status, message, null);
+    }
+
+    private ErrorResponse buildResponse(HttpStatus status, String message, Map<String, String> details) {
         return new ErrorResponse(
                 status.value(),
                 status.getReasonPhrase(),
-                ex.getMessage(),
-                null
+                message,
+                details
         );
     }
 }
