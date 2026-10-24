@@ -36,8 +36,12 @@ public abstract class SoftDeletableEntity extends BaseAuditEntity {
         return deletionOperationId;
     }
 
-    public void restore() {
+    public UUID restore() {
+        UUID deletionOperationId = this.deletionOperationId;
+
         this.deletedAt = null;
         this.deletionOperationId = null;
+
+        return deletionOperationId;
     }
 }

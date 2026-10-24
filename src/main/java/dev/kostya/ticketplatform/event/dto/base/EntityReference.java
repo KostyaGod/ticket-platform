@@ -9,4 +9,11 @@ public record EntityReference <T extends IdentifiableAndNamed>(
     public EntityReference(T entity) {
         this(entity.getId(), entity.getName());
     }
+
+    public static <T extends IdentifiableAndNamed> EntityReference<T> of(
+            IdentifiableAndNamed projection
+    ) {
+        if (projection == null) return null;
+        return new EntityReference<T>( projection.getId(), projection.getName() );
+    }
 }

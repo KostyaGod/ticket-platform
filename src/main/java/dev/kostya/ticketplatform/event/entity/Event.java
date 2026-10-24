@@ -24,7 +24,7 @@ public class Event extends SoftDeletableEntity implements IdentifiableAndNamed {
     private Long id;
 
     @Column(nullable = false)
-    private String title;
+    private String name;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -44,9 +44,4 @@ public class Event extends SoftDeletableEntity implements IdentifiableAndNamed {
 
     @OneToMany(mappedBy = "event")
     private List<EventSession> sessions = new ArrayList<>();
-
-    @Override
-    public String getName() {
-        return title;
-    }
 }

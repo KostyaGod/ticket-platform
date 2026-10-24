@@ -16,14 +16,6 @@ import static dev.kostya.ticketplatform.event.specifications.SpecificationSuppor
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class EventSpecification {
-    public static Specification<Event> forCatalog(EventCatalogFilter filter) {
-        return Specification
-                .<Event>where(stringContains("title", filter.title()))
-                .and(stringContains("description", filter.description()))
-                .and(stringContains("category", filter.category()))
-                .and(greaterThanOrEqualTo("ageLimit", filter.ageLimit()));
-    }
-
     public static Specification<Event> forFilter(EventFilter filter) {
         EntityMetadataFilter metadataFilter = filter.metadataFilter();
 

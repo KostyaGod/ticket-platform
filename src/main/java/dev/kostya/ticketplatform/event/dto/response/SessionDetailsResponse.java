@@ -14,7 +14,7 @@ public record SessionDetailsResponse(
         EntityReference<VenueSnapshot> venue,
         EntityReference<CitySnapshot> city,
         Long organizationId,
-        EventSessionStatus status,
+        EventSessionStatus eventStatus,
         Instant salesStartAt,
         Instant startAt,
         Instant endAt,
