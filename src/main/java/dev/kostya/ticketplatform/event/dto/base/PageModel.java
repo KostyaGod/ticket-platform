@@ -1,4 +1,4 @@
-package dev.kostya.ticketplatform.event.dto.response;
+package dev.kostya.ticketplatform.event.dto.base;
 
 import java.util.List;
 

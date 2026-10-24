@@ -1,4 +1,4 @@
-package dev.kostya.ticketplatform.event.dto.request;
+package dev.kostya.ticketplatform.event.dto.base;
 
 public record RequestMeta(
         Long cityId,

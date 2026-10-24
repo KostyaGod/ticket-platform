@@ -1,4 +1,4 @@
-package dev.kostya.ticketplatform.infrastructure.dto.response;
+package dev.kostya.ticketplatform.infrastructure.dto.base;
 
 import java.util.List;
 
