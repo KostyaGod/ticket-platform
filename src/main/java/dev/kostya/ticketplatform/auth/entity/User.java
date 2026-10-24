@@ -3,12 +3,11 @@ package dev.kostya.ticketplatform.auth.entity;
 import dev.kostya.ticketplatform.auth.enums.*;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
+import lombok.experimental.SuperBuilder;
 
 @Getter @Setter
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "users")
@@ -39,9 +38,6 @@ public class User extends SoftDeletableEntity {
     private Role role;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 80)
-    private UserStatus status;
-
-    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "user_status", nullable = false, length = 80)
+    private UserStatus userStatus;
 }

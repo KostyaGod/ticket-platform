@@ -1,15 +1,17 @@
 package dev.kostya.ticketplatform.auth.entity;
 
 import dev.kostya.ticketplatform.auth.enums.EntityStatus;
+import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter @Setter
 @NoArgsConstructor
-public class Scope extends SoftDeletableEntity {
+public class Scope {
     private Long id;
 
     private User user;
@@ -18,5 +20,6 @@ public class Scope extends SoftDeletableEntity {
 
     private UUID venueId;
 
-    private EntityStatus status;
+//    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
+//    private LocalDateTime createdAt;
 }

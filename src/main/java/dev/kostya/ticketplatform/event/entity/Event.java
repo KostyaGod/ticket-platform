@@ -1,13 +1,11 @@
 package dev.kostya.ticketplatform.event.entity;
 
-import dev.kostya.ticketplatform.event.enums.EntityStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +13,7 @@ import java.util.List;
 @Table(name = "events")
 @Getter @Setter
 @NoArgsConstructor
-public class Event extends SoftDeletableEntity {
+public class Event extends SoftDeletableEntity implements IdentifiableAndNamed {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "event_seq")
     @SequenceGenerator(
@@ -28,13 +26,15 @@ public class Event extends SoftDeletableEntity {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String description;
+
+    private Integer duration;
 
     @Column(length = 100)
     private String category;
 
-    @Column(name = "age_limit")
+    @Column(name = "age_limit", columnDefinition = "INT CHECK (age_limit >= 0 AND age_limit <= 150)")
     private Integer ageLimit;
 
     private String organizer;
@@ -42,13 +42,11 @@ public class Event extends SoftDeletableEntity {
     @Column(name = "release_date")
     private LocalDate releaseDate;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private EntityStatus status;
-
-    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
-    private LocalDateTime createdAt;
-
     @OneToMany(mappedBy = "event")
     private List<EventSession> sessions = new ArrayList<>();
+
+    @Override
+    public String getName() {
+        return title;
+    }
 }

@@ -1,15 +1,10 @@
 package dev.kostya.ticketplatform.infrastructure.entity;
 
-import dev.kostya.ticketplatform.infrastructure.enums.EntityStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
-@Getter @Setter
-@NoArgsConstructor
 @Entity
 @Table(
         name = "seats",
@@ -20,9 +15,14 @@ import java.time.LocalDateTime;
                 )
         }
 )
-public class Seat extends SoftDeletableEntity {
+@Getter @Setter
+@NoArgsConstructor
+public class Seat extends SoftDeletableEntity implements IdentifiableAndNamed {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seat_seq")
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "seat_seq"
+    )
     @SequenceGenerator(
             name = "seat_seq",
             sequenceName = "seat_seq",
@@ -40,9 +40,11 @@ public class Seat extends SoftDeletableEntity {
     @Column(name = "seat_number", nullable = false)
     private int seatNumber;
 
-    @Enumerated(EnumType.STRING)
-    private EntityStatus status;
+    public Long getHallId() {
+        return hall.getId();
+    }
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    public String getName() {
+        return rowNumber + "-" + seatNumber;
+    }
 }

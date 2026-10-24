@@ -2,12 +2,16 @@ package dev.kostya.ticketplatform.event.entity;
 
 import dev.kostya.ticketplatform.event.enums.EventSessionStatus;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "event_sessions")
+@Getter @Setter
+@NoArgsConstructor
 public class EventSession extends SoftDeletableEntity {
     @Id
     @GeneratedValue(
@@ -25,21 +29,24 @@ public class EventSession extends SoftDeletableEntity {
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
-    @Column(name = "hall_id", nullable = false)
-    private Long hallId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "city_id", nullable = false)
+    private CitySnapshot city;
 
-    @Column(name = "venue_id", nullable = false)
-    private Long venueId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "venue_id", nullable = false)
+    private VenueSnapshot venue;
 
-    @Column(name = "city_id", nullable = false)
-    private Long cityId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "hall_id", nullable = false)
+    private HallSnapshot hall;
 
     @Column(name = "organization_id", nullable = false)
     private Long organizationId;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 50)
-    private EventSessionStatus status;
+    @Column(name ="event_status", nullable = false, length = 50)
+    private EventSessionStatus eventStatus;
 
     @Column(name = "sales_start_at", nullable = false)
     private Instant salesStartAt;
@@ -52,7 +59,4 @@ public class EventSession extends SoftDeletableEntity {
 
     @Column(name = "end_at", nullable = false)
     private Instant endAt;
-
-    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
-    private LocalDateTime createdAt;
 }
