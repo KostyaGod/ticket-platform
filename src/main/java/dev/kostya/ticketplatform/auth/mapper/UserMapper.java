@@ -9,44 +9,19 @@ import dev.kostya.ticketplatform.auth.entity.User;
 import dev.kostya.ticketplatform.auth.security.UserPrincipal;
 import org.mapstruct.*;
 
-@Mapper(
-        componentModel = "spring",
-        unmappedTargetPolicy = ReportingPolicy.ERROR
-)
+@Mapper(config = CentralMapperConfig.class)
 public interface UserMapper {
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "passwordHash", ignore = true)
-    @Mapping(target = "role",  ignore = true)
-    @Mapping(target = "status", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
     User toEntity(RegisterRequest dto);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "passwordHash", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
     User toEntity(CreateUserRequest dto);
 
-    @Mapping(target = "sessionId", ignore = true)
-    @Mapping(target = "authorities", ignore = true)
     UserPrincipal toPrincipal(User user);
 
     UserResponse toResponse(User entity);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "passwordHash", ignore = true)
-    @Mapping(target = "role",  ignore = true)
-    @Mapping(target = "status", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "deletedAt", ignore = true)
-    @Mapping(target = "deletionOperationId", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(UpdateProfileRequest dto, @MappingTarget User entity);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "passwordHash", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "deletedAt", ignore = true)
-    @Mapping(target = "deletionOperationId", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(UpdateUserRequest dto, @MappingTarget User entity);
 }

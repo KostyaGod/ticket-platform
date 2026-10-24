@@ -1,7 +1,9 @@
 package dev.kostya.ticketplatform.auth.specifications;
 
+import dev.kostya.ticketplatform.auth.dto.base.EntityMetadataFilter;
 import dev.kostya.ticketplatform.auth.dto.request.UserFilter;
 import dev.kostya.ticketplatform.auth.entity.User;
+import dev.kostya.ticketplatform.auth.enums.DeletedViewFilter;
 import lombok.experimental.UtilityClass;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -14,11 +16,34 @@ public class UserSpecification {
             return null;
         }
 
-        return Specification
+        EntityMetadataFilter metadataFilter = filter.metadataFilter();
+
+        Specification<User> specification = Specification
                 .<User>where(stringContains("username", filter.username()))
                 .and(stringContains("email", filter.email()))
                 .and(equalTo("role", filter.role()))
-                .and(equalTo("status", filter.status()))
-                .and(between("createdAt", filter.createdAfter(), filter.createdBefore()));
+                .and(equalTo("userStatus", filter.userStatus()));
+
+        if (metadataFilter != null) {
+            specification = specification
+                    .and(equalTo("status", metadataFilter.status()))
+                    .and(between(
+                            "createdAt",
+                            metadataFilter.createdAtRange().from(),
+                            metadataFilter.createdAtRange().to())
+                    )
+                    .and(filterByDeleted(metadataFilter.deletedFilter()));
+
+            if (metadataFilter.deletedFilter().equals(DeletedViewFilter.DELETED_ONLY)) {
+                specification = specification
+                        .and(between(
+                                "deletedAt",
+                                metadataFilter.deletedAtRange().from(),
+                                metadataFilter.deletedAtRange().to())
+                        );
+            }
+        }
+
+        return specification;
     }
 }

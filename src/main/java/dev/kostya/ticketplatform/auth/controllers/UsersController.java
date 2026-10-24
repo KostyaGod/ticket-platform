@@ -3,6 +3,8 @@ package dev.kostya.ticketplatform.auth.controllers;
 import dev.kostya.ticketplatform.auth.dto.request.*;
 import dev.kostya.ticketplatform.auth.dto.response.UserPageResponse;
 import dev.kostya.ticketplatform.auth.dto.response.UserResponse;
+import dev.kostya.ticketplatform.auth.enums.UserStatus;
+import dev.kostya.ticketplatform.auth.exception.AdminSelfModificationException;
 import dev.kostya.ticketplatform.auth.security.UserPrincipal;
 import dev.kostya.ticketplatform.auth.services.SessionService;
 import dev.kostya.ticketplatform.auth.services.UserService;
@@ -104,19 +106,31 @@ public class UsersController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
     @PatchMapping("/{id}")
-    public ResponseEntity<?> updateUser(
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponse updateUser(
             @AuthenticationPrincipal UserPrincipal principal,
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserRequest request
     ) {
         if (principal.getId().equals(id)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("You cannot update your own profile through " +
-                            "the admin management endpoint. Please use " +
-                            "the profile settings page.");
+            throw new AdminSelfModificationException();
         }
-        userService.updateById(id, request);
 
-        return ResponseEntity.ok().build();
+        return userService.updateById(id, request);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
+    @PatchMapping("/{id}/status")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void setUserStatus(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable Long id,
+            @RequestParam UserStatus status
+    ) {
+        if (principal.getId().equals(id)) {
+            throw new AdminSelfModificationException();
+        }
+
+        userService.changeStatusById(id, status);
     }
 }

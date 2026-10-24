@@ -5,6 +5,7 @@ import dev.kostya.ticketplatform.auth.dto.response.PageResponse;
 import dev.kostya.ticketplatform.auth.dto.response.UserPageResponse;
 import dev.kostya.ticketplatform.auth.dto.response.UserResponse;
 import dev.kostya.ticketplatform.auth.entity.User;
+import dev.kostya.ticketplatform.auth.enums.UserStatus;
 import dev.kostya.ticketplatform.auth.exception.*;
 import dev.kostya.ticketplatform.auth.mapper.UserMapper;
 import dev.kostya.ticketplatform.auth.repositories.UserRepository;
@@ -58,18 +59,21 @@ public class UserServiceImpl implements UserService {
         );
 
         repository.save(user);
+
         return mapper.toResponse(user);
     }
 
     @Transactional
     @Override
-    public void updateById(Long id, UpdateUserRequest request) {
+    public UserResponse updateById(Long id, UpdateUserRequest request) {
         User user = repository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
 
         validateUniqueness(user, request.username(), request.email());
 
         mapper.updateEntityFromDto(request, user);
+
+        return mapper.toResponse(user);
     }
 
     @Transactional
@@ -106,6 +110,15 @@ public class UserServiceImpl implements UserService {
         )) throw new CurrentPasswordMismatchException();
 
         user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+    }
+
+    @Transactional
+    @Override
+    public void changeStatusById(Long id, UserStatus status) {
+        User user = repository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+
+        user.setUserStatus(status);
     }
 
     @Override

@@ -1,9 +1,9 @@
 package dev.kostya.ticketplatform.auth.dto.response;
 
+import dev.kostya.ticketplatform.auth.entity.User;
 import dev.kostya.ticketplatform.auth.enums.Role;
 import dev.kostya.ticketplatform.auth.enums.UserStatus;
-
-import java.time.LocalDateTime;
+import dev.kostya.ticketplatform.auth.dto.base.EntityMetadata;
 
 public record UserResponse(
         Long id,
@@ -11,6 +11,6 @@ public record UserResponse(
         String email,
         Role role,
         UserStatus status,
-        LocalDateTime createdAt
+        EntityMetadata<User> metadata
 ) {
 }

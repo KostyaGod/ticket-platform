@@ -25,5 +25,5 @@ public record CreateUserRequest (
         Role role,
 
         @NotNull(message = "Status is required.")
-        UserStatus status
+        UserStatus userStatus
 ) { }

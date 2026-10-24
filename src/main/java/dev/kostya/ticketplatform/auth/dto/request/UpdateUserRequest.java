@@ -19,5 +19,5 @@ public record UpdateUserRequest (
 
         Role role,
 
-        UserStatus status
+        UserStatus userStatus
 ) { }

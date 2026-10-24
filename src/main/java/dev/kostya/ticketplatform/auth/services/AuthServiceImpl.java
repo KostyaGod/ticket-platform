@@ -50,7 +50,7 @@ public class AuthServiceImpl implements AuthService {
             throw new InvalidCredentialsException();
         }
 
-        if (user.getStatus() == UserStatus.BLOCKED) {
+        if (user.getUserStatus() == UserStatus.BLOCKED) {
             throw new UserBlockedException();
         }
 

@@ -14,40 +14,31 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ErrorResponse handleInvalidCredentials(
+            InvalidCredentialsException ex
+    ) {
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
+
+        return new ErrorResponse(
+                status.value(),
+                status.getReasonPhrase(),
+                ex.getMessage(),
+                null
+        );
+    }
+
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ErrorResponse handleEmailAlreadyExists(
             EmailAlreadyExistsException ex
     ) {
-        return new ErrorResponse(
-                HttpStatus.CONFLICT.value(),
-                HttpStatus.CONFLICT.getReasonPhrase(),
-                ex.getMessage(),
-                null
-        );
-    }
+        HttpStatus status = HttpStatus.CONFLICT;
 
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    @ExceptionHandler(InvalidCredentialsException.class)
-    public ErrorResponse handleEmailAlreadyExists(
-            InvalidCredentialsException ex
-    ) {
         return new ErrorResponse(
-                HttpStatus.UNAUTHORIZED.value(),
-                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
-                ex.getMessage(),
-                null
-        );
-    }
-
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    @ExceptionHandler(UserBlockedException.class)
-    public ErrorResponse handleEmailAlreadyExists(
-            UserBlockedException ex
-    ) {
-        return new ErrorResponse(
-                HttpStatus.UNAUTHORIZED.value(),
-                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                status.value(),
+                status.getReasonPhrase(),
                 ex.getMessage(),
                 null
         );
@@ -55,12 +46,29 @@ public class GlobalExceptionHandler {
 
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(UsernameAlreadyExistsException.class)
-    public ErrorResponse handleEmailAlreadyExists(
+    public ErrorResponse handleUsernameAlreadyExists(
             UsernameAlreadyExistsException ex
     ) {
+        HttpStatus status = HttpStatus.CONFLICT;
+
         return new ErrorResponse(
-                409,
-                "Conflict",
+                status.value(),
+                status.getReasonPhrase(),
+                ex.getMessage(),
+                null
+        );
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN )
+    @ExceptionHandler(UserBlockedException.class)
+    public ErrorResponse handleUserBlocked(
+            UserBlockedException ex
+    ) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+
+        return new ErrorResponse(
+                status.value(),
+                status.getReasonPhrase(),
                 ex.getMessage(),
                 null
         );
@@ -71,6 +79,7 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleValidationException(
             MethodArgumentNotValidException ex
     ) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
         Map<String, String> errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -81,8 +90,8 @@ public class GlobalExceptionHandler {
                 ));
 
         return new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                status.value(),
+                status.getReasonPhrase(),
                 "Validation failed",
                 errors
         );
@@ -93,9 +102,11 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleCurrentPasswordMismatch(
             CurrentPasswordMismatchException ex
     ) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
         return new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                status.value(),
+                status.getReasonPhrase(),
                 ex.getMessage(),
                 null
         );
@@ -106,9 +117,11 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleNewPasswordMatchesOld(
             NewPasswordMatchesOldException ex
     ) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
         return new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                status.value(),
+                status.getReasonPhrase(),
                 ex.getMessage(),
                 null
         );
@@ -119,9 +132,11 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleUserNotFound(
             UserNotFoundException ex
     ) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
         return new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                status.value(),
+                status.getReasonPhrase(),
                 ex.getMessage(),
                 null
         );
@@ -129,12 +144,29 @@ public class GlobalExceptionHandler {
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(SessionNotFoundException.class)
-    public ErrorResponse handleUserBlocked(
+    public ErrorResponse handleSessionNotFound(
             SessionNotFoundException ex
     ) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+
         return new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                status.value(),
+                status.getReasonPhrase(),
+                ex.getMessage(),
+                null
+        );
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(AdminSelfModificationException.class)
+    public ErrorResponse handleAdminSelfModification(
+            AdminSelfModificationException ex
+    ) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        return new ErrorResponse(
+                status.value(),
+                status.getReasonPhrase(),
                 ex.getMessage(),
                 null
         );
