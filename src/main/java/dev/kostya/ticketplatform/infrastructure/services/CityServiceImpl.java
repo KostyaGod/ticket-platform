@@ -1,9 +1,9 @@
 package dev.kostya.ticketplatform.infrastructure.services;
 
+import dev.kostya.ticketplatform.infrastructure.dto.base.EntityReference;
 import dev.kostya.ticketplatform.infrastructure.dto.request.CityCreateRequest;
-import dev.kostya.ticketplatform.infrastructure.dto.response.CityResponse;
-import dev.kostya.ticketplatform.infrastructure.dto.response.PageMeta;
-import dev.kostya.ticketplatform.infrastructure.dto.response.PageModel;
+import dev.kostya.ticketplatform.infrastructure.dto.base.PageMeta;
+import dev.kostya.ticketplatform.infrastructure.dto.base.PageModel;
 import dev.kostya.ticketplatform.infrastructure.entity.City;
 import dev.kostya.ticketplatform.infrastructure.enums.EntityStatus;
 import dev.kostya.ticketplatform.infrastructure.exception.CityNotFoundException;
@@ -22,11 +22,11 @@ public class CityServiceImpl implements CityService {
     private final CityRepository cityRepository;
 
     @Override
-    public PageModel<CityResponse> getCities(String name, Pageable pageable) {
+    public PageModel<EntityReference<City>> getCityRefList(String name, Pageable pageable) {
         Page<City> page = cityRepository.findByNameContaining(name, pageable);
 
-        List<CityResponse> cities = page.getContent().stream()
-                .map(CityResponse::new)
+        List<EntityReference<City>> cities = page.getContent().stream()
+                .map(EntityReference::new)
                 .toList();
 
         PageMeta pageMeta = new PageMeta(
@@ -44,12 +44,12 @@ public class CityServiceImpl implements CityService {
     }
 
     @Override
-    public CityResponse createCity(CityCreateRequest request) {
+    public EntityReference<City> createCity(CityCreateRequest request) {
         City city = new City();
         city.setName(request.name());
         City created = cityRepository.save(city);
 
-        return new CityResponse(created);
+        return new EntityReference<>(created);
     }
 
     @Transactional

@@ -1,8 +1,13 @@
 package dev.kostya.ticketplatform.infrastructure.controllers;
 
+import dev.kostya.ticketplatform.infrastructure.dto.base.EntityReference;
 import dev.kostya.ticketplatform.infrastructure.dto.request.CityCreateRequest;
-import dev.kostya.ticketplatform.infrastructure.dto.response.CityResponse;
-import dev.kostya.ticketplatform.infrastructure.dto.response.PageModel;
+import dev.kostya.ticketplatform.infrastructure.dto.request.CityFilter;
+import dev.kostya.ticketplatform.infrastructure.dto.request.CityUpdateRequest;
+import dev.kostya.ticketplatform.infrastructure.dto.response.CityDetailsResponse;
+import dev.kostya.ticketplatform.infrastructure.dto.base.PageModel;
+import dev.kostya.ticketplatform.infrastructure.dto.response.CityWithChildrenResponse;
+import dev.kostya.ticketplatform.infrastructure.entity.City;
 import dev.kostya.ticketplatform.infrastructure.services.CityService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,26 +24,65 @@ import org.springframework.web.bind.annotation.*;
 public class CityController {
     private final CityService cityService;
 
-    @GetMapping()
+    @GetMapping("/list")
     @ResponseStatus(HttpStatus.OK)
-    public PageModel<CityResponse> getCities(
-            @RequestParam(required = false, defaultValue = "") String name,
+    public PageModel<EntityReference<City>> getCityReferences(
+            @RequestParam(
+                    name = "filter",
+                    required = false,
+                    defaultValue = ""
+            ) String nameFilter,
             @PageableDefault(
                     size = 20,
                     sort = "id",
                     direction = Sort.Direction.ASC
             ) Pageable pageable
     ) {
-        return cityService.getCities(name, pageable);
+        // return cityService.getCities(nameFilter, pageable);
+        return null;
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
+    @GetMapping()
+    @ResponseStatus(HttpStatus.OK)
+    public PageModel<CityDetailsResponse> getCities(
+            @ModelAttribute CityFilter filter,
+            @PageableDefault(
+                    size = 20,
+                    sort = "id",
+                    direction = Sort.Direction.ASC
+            ) Pageable pageable
+    ) {
+        return null;
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public CityWithChildrenResponse getCity(
+            @PathVariable Long id
+    ) {
+        return null;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public CityResponse createCity(
-            @Valid CityCreateRequest request
+    public CityDetailsResponse createCity(
+            @Valid @RequestBody CityCreateRequest request
     ) {
-        return cityService.createCity(request);
+        // return cityService.createCity(request);
+        return null;
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
+    @PatchMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public CityDetailsResponse updateCity(
+            @PathVariable Long id,
+            @Valid @RequestBody CityUpdateRequest request
+    ) {
+        return null;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
@@ -50,5 +94,14 @@ public class CityController {
         cityService.deleteCity(id);
     }
 
-    
+    @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
+    @PostMapping("/{id}/restore")
+    @ResponseStatus(HttpStatus.OK)
+    public CityDetailsResponse restoreCity(
+            @PathVariable Long id
+    ) {
+        return null;
+    }
+
+
 }

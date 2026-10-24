@@ -1,15 +1,15 @@
 package dev.kostya.ticketplatform.infrastructure.services;
 
+import dev.kostya.ticketplatform.infrastructure.dto.base.EntityReference;
 import dev.kostya.ticketplatform.infrastructure.dto.request.CityCreateRequest;
-import dev.kostya.ticketplatform.infrastructure.dto.response.CityResponse;
-import dev.kostya.ticketplatform.infrastructure.dto.response.PageModel;
-import jakarta.validation.Valid;
+import dev.kostya.ticketplatform.infrastructure.dto.base.PageModel;
+import dev.kostya.ticketplatform.infrastructure.entity.City;
 import org.springframework.data.domain.Pageable;
 
 public interface CityService {
-    PageModel<CityResponse> getCities(String name, Pageable pageable);
+    PageModel<EntityReference<City>> getCityRefList(String name, Pageable pageable);
 
-    CityResponse createCity(@Valid CityCreateRequest request);
+    EntityReference<City> createCity(CityCreateRequest request);
 
     void deleteCity(Long id);
 }
