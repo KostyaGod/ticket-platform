@@ -1,7 +1,8 @@
 package dev.kostya.ticketplatform.event.dto.request;
 
-import dev.kostya.ticketplatform.event.dto.base.DateTimeRange;
-import dev.kostya.ticketplatform.event.dto.base.InstantRange;
+import dev.kostya.ticketplatform.event.dto.base.Range;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import dev.kostya.ticketplatform.event.enums.EventSessionStatus;
 
 public record SessionFilter(
@@ -9,8 +10,8 @@ public record SessionFilter(
         Long hallId,
         Long venueId,
         Long organizationId,
-        EventSessionStatus status,
-        InstantRange salesTimeFilter,
-        InstantRange sessionTimeFilter,
-        DateTimeRange dateTimeFilter
+        EventSessionStatus eventStatus,
+        Range<Instant> salesTimeFilter,
+        Range<Instant> sessionTimeFilter,
+        Range<LocalDateTime> dateTimeFilter
 ) { }

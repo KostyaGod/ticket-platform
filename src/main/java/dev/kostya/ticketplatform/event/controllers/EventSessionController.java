@@ -1,13 +1,12 @@
 package dev.kostya.ticketplatform.event.controllers;
 
-import dev.kostya.ticketplatform.event.dto.base.DateRange;
-import dev.kostya.ticketplatform.event.dto.request.RequestMeta;
+import dev.kostya.ticketplatform.event.dto.base.Range;
+import dev.kostya.ticketplatform.event.dto.base.RequestMeta;
 import dev.kostya.ticketplatform.event.dto.request.SessionCreateRequest;
 import dev.kostya.ticketplatform.event.dto.request.SessionFilter;
-import dev.kostya.ticketplatform.event.dto.base.TimeRange;
 import dev.kostya.ticketplatform.event.dto.request.SessionUpdateRequest;
-import dev.kostya.ticketplatform.event.dto.response.PageModel;
-import dev.kostya.ticketplatform.event.dto.response.SessionResponse;
+import dev.kostya.ticketplatform.event.dto.base.PageModel;
+import dev.kostya.ticketplatform.event.dto.response.SessionDetailsResponse;
 import dev.kostya.ticketplatform.event.dto.response.SessionShortResponse;
 import dev.kostya.ticketplatform.event.services.EventService;
 import dev.kostya.ticketplatform.event.services.EventSessionService;
@@ -20,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @RestController
@@ -33,7 +33,7 @@ public class EventSessionController {
     @ResponseStatus(HttpStatus.OK)
     public PageModel<SessionShortResponse> getSessions(
             @ModelAttribute RequestMeta meta,
-            @ModelAttribute DateRange dateFilter,
+            @ModelAttribute Range<LocalDate> dateFilter,
             @PageableDefault(
                     size = 20,
                     sort = "startAt",
@@ -47,8 +47,8 @@ public class EventSessionController {
     @ResponseStatus(HttpStatus.OK)
     public List<LocalDate> getSessionDates(
             @ModelAttribute RequestMeta meta,
-            @ModelAttribute DateRange dateFilter,
-            @ModelAttribute TimeRange timeFilter
+            @ModelAttribute Range<LocalDate> dateFilter,
+            @ModelAttribute Range<LocalTime> timeFilter
     ) {
         return null;
     }
@@ -56,7 +56,7 @@ public class EventSessionController {
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'SERVER')")
     @GetMapping("/data")
     @ResponseStatus(HttpStatus.OK)
-    public PageModel<SessionResponse> getSessionsData(
+    public PageModel<SessionDetailsResponse> getSessions(
             @ModelAttribute RequestMeta meta,
             @ModelAttribute SessionFilter filter,
             @PageableDefault(
@@ -65,13 +65,24 @@ public class EventSessionController {
                     direction = Sort.Direction.ASC
             ) Pageable pageable
     ) {
+
+        return null;
+    }
+
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'SERVER')")
+    @GetMapping("/by-event/{eventId}")
+    @ResponseStatus(HttpStatus.OK)
+    public PageModel<SessionShortResponse> getSessionsByEvent(
+            @ModelAttribute RequestMeta meta,
+            @PathVariable Long eventId
+    ) {
         return null;
     }
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'SERVER')")
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public SessionResponse createSession(
+    public SessionDetailsResponse createSession(
             @RequestBody SessionCreateRequest request
     ) {
         return null;

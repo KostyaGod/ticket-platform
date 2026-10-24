@@ -2,8 +2,8 @@ package dev.kostya.ticketplatform.event.services;
 
 import dev.kostya.ticketplatform.event.dto.request.EventCatalogFilter;
 import dev.kostya.ticketplatform.event.dto.response.EventCatalogResponse;
-import dev.kostya.ticketplatform.event.dto.response.PageMeta;
-import dev.kostya.ticketplatform.event.dto.response.PageModel;
+import dev.kostya.ticketplatform.event.dto.base.PageMeta;
+import dev.kostya.ticketplatform.event.dto.base.PageModel;
 import dev.kostya.ticketplatform.event.repositories.EventCatalogRepository;
 import dev.kostya.ticketplatform.event.repositories.EventRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,13 +28,7 @@ public class EventServiceImpl implements EventService {
                         filter,
                         pageable
                 );
-        PageMeta meta = new PageMeta(
-                page.getNumber(),
-                page.getSize(),
-                page.getTotalElements(),
-                page.getTotalPages(),
-                page.hasNext()
-        );
+        PageMeta meta = new PageMeta(page);
 
         return new PageModel<>(
                 page.getContent(),

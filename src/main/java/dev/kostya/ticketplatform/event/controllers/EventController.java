@@ -1,14 +1,17 @@
 package dev.kostya.ticketplatform.event.controllers;
 
+import dev.kostya.ticketplatform.event.dto.base.EntityReference;
 import dev.kostya.ticketplatform.event.dto.request.EventCatalogFilter;
 import dev.kostya.ticketplatform.event.dto.request.EventCreateRequest;
 import dev.kostya.ticketplatform.event.dto.request.EventFilter;
 import dev.kostya.ticketplatform.event.dto.request.EventUpdateRequest;
 import dev.kostya.ticketplatform.event.dto.response.EventCatalogResponse;
-import dev.kostya.ticketplatform.event.dto.response.EventResponse;
-import dev.kostya.ticketplatform.event.dto.response.PageModel;
+import dev.kostya.ticketplatform.event.dto.response.EventDetailsResponse;
+import dev.kostya.ticketplatform.event.dto.base.PageModel;
+import dev.kostya.ticketplatform.event.entity.Event;
 import dev.kostya.ticketplatform.event.services.EventService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -36,18 +39,31 @@ public class EventController {
         return eventService.getEventsCatalog(cityId, filter, pageable);
     }
 
+    @GetMapping("/list")
+    @ResponseStatus(HttpStatus.OK)
+    public Page<EntityReference<Event>> getEventReferences(
+            @RequestParam String name,
+            @PageableDefault(
+                    size = 20,
+                    sort = "id",
+                    direction = Sort.Direction.ASC
+            ) Pageable pageable
+    ) {
+        return null;
+    }
+
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public EventResponse getEventDetails(
+    public EventDetailsResponse getEvent(
             @PathVariable Long id
     ) {
         return null;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
-    @GetMapping()
+    @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
-    public PageModel<EventResponse> getEvents(
+    public PageModel<EventDetailsResponse> getEvents(
             @RequestParam Long cityId,
             @RequestParam Long organizationId,
             @ModelAttribute EventFilter filter,
@@ -63,7 +79,7 @@ public class EventController {
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public EventResponse createEvent(
+    public EventDetailsResponse createEvent(
             @RequestBody EventCreateRequest eventRequest
     ) {
         return null;
@@ -72,7 +88,7 @@ public class EventController {
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public EventResponse updateEvent(
+    public EventDetailsResponse updateEvent(
             @PathVariable Long id,
             @RequestBody EventUpdateRequest request
     ) {
@@ -90,7 +106,7 @@ public class EventController {
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PostMapping("/{id}/restore")
     @ResponseStatus(HttpStatus.OK)
-    public EventResponse restoreEvent(
+    public EventDetailsResponse restoreEvent(
             @PathVariable Long id
     ) {
         return null;
