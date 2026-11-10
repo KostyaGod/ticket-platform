@@ -3,6 +3,7 @@ package dev.kostya.ticketplatform.event.specifications;
 import dev.kostya.ticketplatform.event.entity.SoftDeletableEntity;
 import dev.kostya.ticketplatform.event.enums.DeletedViewFilter;
 import dev.kostya.ticketplatform.event.dto.base.EntityMetadataFilter;
+import dev.kostya.ticketplatform.event.dto.base.Range;
 import jakarta.persistence.criteria.Path;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -86,6 +87,16 @@ public final class SpecificationSupport {
                 cb.between(root.get(field), from, to);
     }
 
+    public static <T, V extends Comparable<? super V>> Specification<T> between(
+            String field,
+            Range<V> range
+    ) {
+        if (range == null) {
+            return Specification.unrestricted();
+        }
+        return between( field, range.from(), range.to() );
+    }
+
     public static <T extends SoftDeletableEntity> Specification<T> filterByDeleted(
             DeletedViewFilter filter
     ) {
@@ -109,21 +120,13 @@ public final class SpecificationSupport {
 
         Specification<T> specification = Specification.allOf(
                 equalTo( "status", filter.status() ),
-                between(
-                        "createdAt",
-                        filter.createdAtRange().from(),
-                        filter.createdAtRange().to()
-                ),
+                between( "createdAt", filter.createdAtRange() ),
                 filterByDeleted( filter.deletedFilter() )
         );
 
-        if (filter.deletedFilter().equals( DeletedViewFilter.DELETED_ONLY) ) {
+        if (filter.deletedFilter() != null && filter.deletedFilter().equals( DeletedViewFilter.DELETED_ONLY )) {
             specification = specification
-                    .and( between(
-                            "deletedAt",
-                            filter.deletedAtRange().from(),
-                            filter.deletedAtRange().to())
-                    );
+                    .and( between( "deletedAt", filter.deletedAtRange() ) );
         }
 
         return specification;

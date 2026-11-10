@@ -1,6 +1,5 @@
 package dev.kostya.ticketplatform.event.services;
 
-import dev.kostya.ticketplatform.auth.services.SessionService;
 import dev.kostya.ticketplatform.event.entity.CitySnapshot;
 import dev.kostya.ticketplatform.event.entity.HallSnapshot;
 import dev.kostya.ticketplatform.event.entity.VenueSnapshot;
@@ -27,7 +26,6 @@ public class InfrastructureSnapshotServiceImpl implements InfrastructureSnapshot
     private final CitySnapshotRepository cityRepository;
     private final VenueSnapshotRepository venueRepository;
     private final HallSnapshotRepository hallRepository;
-    private final SessionService sessionService;
     private final SyncMapper syncMapper;
 
     @PersistenceContext

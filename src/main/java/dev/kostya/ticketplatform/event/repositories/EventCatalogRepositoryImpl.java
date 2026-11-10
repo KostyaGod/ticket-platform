@@ -29,7 +29,7 @@ public class EventCatalogRepositoryImpl implements EventCatalogRepository {
         StringBuilder sb = new StringBuilder("""
         SELECT
             e.id AS id,
-            e.title AS title,
+            e.name AS name,
             e.category AS category,
             e.age_limit AS age_limit,
             s.start_at AS next_session_start_at
@@ -57,7 +57,7 @@ public class EventCatalogRepositoryImpl implements EventCatalogRepository {
                             .map(order -> {
                                 String sqlProperty = switch (order.getProperty()) {
                                     case "ageLimit" -> "e.age_limit";
-                                    case "title" -> "e.title";
+                                    case "name" -> "e.name";
                                     case "category" -> "e.category";
                                     case "nextSessionStartAt" -> "s.start_at";
                                     default -> "e.id";
@@ -79,7 +79,7 @@ public class EventCatalogRepositoryImpl implements EventCatalogRepository {
         List<EventCatalogResponse> content = results.stream()
                 .map(tuple -> new EventCatalogResponse(
                         tuple.get("id", Long.class),
-                        tuple.get("title", String.class),
+                        tuple.get("name", String.class),
                         tuple.get("category", String.class),
                         tuple.get("age_limit", Integer.class),
                         tuple.get("next_session_start_at", Instant.class)
@@ -98,6 +98,7 @@ public class EventCatalogRepositoryImpl implements EventCatalogRepository {
         SELECT COUNT(*)
         FROM events AS e
         WHERE e.status = 'ACTIVE'
+          AND e.deleted_at IS NULL
           AND EXISTS(
               SELECT 1
               FROM event_sessions AS es
@@ -105,46 +106,47 @@ public class EventCatalogRepositoryImpl implements EventCatalogRepository {
                 AND es.city_id = :cityId
                 AND es.status = 'SCHEDULED'
                 AND es.start_at > now()
+                AND es.deleted_at IS NULL
           )
         """);
 
         appendFilters(sb, filter);
-        Query query = entityManager.createNativeQuery(sb.toString(), Tuple.class);
+        Query query = entityManager.createNativeQuery(sb.toString());
         query.setParameter("cityId", cityId);
         setParametersFromFilter(query, filter);
 
         Number totalCount = (Number) query.getSingleResult();
 
-        return totalCount.longValue();
+        return totalCount != null ? totalCount.longValue() : 0L;
     }
 
     private void appendFilters(StringBuilder sb, EventCatalogFilter filter) {
         if (filter != null) {
-            if (filter.title() != null) {
-                sb.append(" AND e.title = :title ");
+            if (filter.name() != null && !filter.name().isBlank()) {
+                sb.append(" AND e.name ILIKE :name ");
             }
-            if (filter.category() != null) {
+            if (filter.category() != null && !filter.category().isBlank()) {
                 sb.append(" AND e.category = :category ");
             }
-            if (filter.description() != null) {
-                sb.append(" AND e.description = :description ");
+            if (filter.description() != null && !filter.description().isBlank()) {
+                sb.append(" AND e.description ILIKE :description ");
             }
             if (filter.ageLimit() != null) {
-                sb.append(" AND e.ageLimit = :ageLimit ");
+                sb.append(" AND e.age_limit = :ageLimit ");
             }
         }
     }
 
     private void setParametersFromFilter(Query query, EventCatalogFilter filter) {
         if (filter != null) {
-            if (filter.title() != null) {
-                query.setParameter("title", filter.title());
+            if (filter.name() != null && !filter.name().isBlank()) {
+                query.setParameter("name", "%" + filter.name() + "%");
             }
-            if (filter.category() != null) {
+            if (filter.category() != null && !filter.category().isBlank()) {
                 query.setParameter("category", filter.category());
             }
-            if (filter.description() != null) {
-                query.setParameter("description", filter.description());
+            if (filter.description() != null && !filter.description().isBlank()) {
+                query.setParameter("description", "%" + filter.description() + "%");
             }
             if (filter.ageLimit() != null) {
                 query.setParameter("ageLimit", filter.ageLimit());

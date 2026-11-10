@@ -7,7 +7,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 
 public record EventFilter(
-        String title,
+        String name,
         String description,
         String category,
         Integer ageLimit,

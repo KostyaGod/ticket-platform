@@ -15,15 +15,11 @@ public final class EventSpecification {
         if (filter == null) return null;
 
         return Specification.allOf(
-                stringContains( "title", filter.title() ),
+                stringContains( "name", filter.name() ),
                 stringContains( "description", filter.description() ),
                 stringContains( "category", filter.category() ),
                 greaterThanOrEqualTo( "ageLimit", filter.ageLimit() ),
-                between(
-                        "releaseDate",
-                        filter.releaseDateRange().from(),
-                        filter.releaseDateRange().to()
-                ),
+                between( "releaseDate", filter.releaseDateRange() ),
                 filterByMetadata( filter.metadataFilter() )
         );
     }

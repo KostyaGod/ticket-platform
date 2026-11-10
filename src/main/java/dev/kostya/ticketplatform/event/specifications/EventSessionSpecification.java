@@ -31,11 +31,7 @@ public final class EventSessionSpecification {
     ) {
         return Specification.allOf(
                 equalTo( "event.id", eventId ),
-                between(
-                        "startAt",
-                        dateFilter.from(),
-                        dateFilter.to()
-                ),
+                between( "startAt", dateFilter ),
                 filterByDeleted( null )
         );
     }
@@ -47,19 +43,11 @@ public final class EventSessionSpecification {
                 equalTo( "event.id", filter.eventId() ),
                 equalTo( "city.id", filter.cityId() ),
                 equalTo( "hall.id", filter.hallId() ),
-                equalTo( "venue.id", filter.eventId() ),
+                equalTo( "venue.id", filter.venueId() ),
                 equalTo( "organizationId", filter.organizationId() ),
                 equalTo( "eventStatus", filter.eventStatus() ),
-                between(
-                        "salesStartAt",
-                        filter.salesTimeFilter().from(),
-                        filter.salesTimeFilter().to()
-                ),
-                between(
-                        "startAt",
-                        filter.sessionTimeFilter().from(),
-                        filter.sessionTimeFilter().to()
-                ),
+                between( "salesStartAt", filter.salesTimeFilter() ),
+                between( "startAt", filter.sessionTimeFilter() ),
                 filterByMetadata( filter.metadataFilter() )
         );
     }
