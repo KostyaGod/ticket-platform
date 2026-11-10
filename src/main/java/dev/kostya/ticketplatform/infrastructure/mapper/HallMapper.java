@@ -6,13 +6,12 @@ import dev.kostya.ticketplatform.infrastructure.dto.response.HallDetailsResponse
 import dev.kostya.ticketplatform.infrastructure.dto.response.HallWithChildrenResponse;
 import dev.kostya.ticketplatform.infrastructure.entity.Hall;
 import dev.kostya.ticketplatform.infrastructure.entity.Seat;
-import dev.kostya.ticketplatform.infrastructure.sync.dto.HallSyncDto;
-import dev.kostya.ticketplatform.infrastructure.sync.projection.HallSyncProjection;
 import org.mapstruct.*;
 
+import java.util.List;
 
 @Mapper(config = CentralMapperConfig.class)
-public interface HallMapper {
+public interface HallMapper extends CentralMapperConfig {
     @Mapping(target = "venue.id", source = "venueId")
     Hall toEntity(HallCreateRequest request);
 
@@ -35,12 +34,12 @@ public interface HallMapper {
 
     HallDetailsResponse toDetailsResponse(Hall hall);
 
+    List<HallDetailsResponse> toDetailsResponseList(List<Hall> hallList);
+
     @Mapping(target = "children", source = "seats")
     HallWithChildrenResponse toWithChildrenResponse(Hall hall);
 
     @Mapping(target = "venue.id", source = "venueId")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(HallUpdateRequest request, @MappingTarget Hall hall);
-
-    HallSyncDto toHallSyncDto(HallSyncProjection hall);
 }

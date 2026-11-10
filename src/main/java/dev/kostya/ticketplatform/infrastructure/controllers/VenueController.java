@@ -38,7 +38,7 @@ public class VenueController {
                     direction = Sort.Direction.ASC
             ) Pageable pageable
     ) {
-        return null;
+        return venueService.getReferences( nameFilter, pageable );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
@@ -52,7 +52,7 @@ public class VenueController {
                     direction = Sort.Direction.ASC
             ) Pageable pageable
     ) {
-        return null;
+        return venueService.getVenues( filter, pageable );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
@@ -61,7 +61,7 @@ public class VenueController {
     public VenueWithChildrenResponse getVenue(
             @PathVariable Long id
     ) {
-        return null;
+        return venueService.getVenue( id );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
@@ -70,7 +70,7 @@ public class VenueController {
     public VenueDetailsResponse createVenue(
             @Valid @RequestBody VenueCreateRequest request
     ) {
-        return null;
+        return venueService.create( request );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
@@ -80,7 +80,7 @@ public class VenueController {
             @PathVariable Long id,
             @Valid @RequestBody VenueUpdateRequest request
     ) {
-        return null;
+        return venueService.update( id, request );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
@@ -89,6 +89,7 @@ public class VenueController {
     public void deleteVenue(
             @PathVariable Long id
     ) {
+        venueService.delete( id, false );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
@@ -97,6 +98,6 @@ public class VenueController {
     public VenueDetailsResponse restoreVenue(
             @PathVariable Long id
     ) {
-        return null;
+        return venueService.restore( id, false );
     }
 }

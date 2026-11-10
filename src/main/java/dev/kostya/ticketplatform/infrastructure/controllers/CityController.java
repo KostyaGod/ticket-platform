@@ -38,8 +38,7 @@ public class CityController {
                     direction = Sort.Direction.ASC
             ) Pageable pageable
     ) {
-        // return cityService.getCities(nameFilter, pageable);
-        return null;
+        return cityService.getReferences( nameFilter, pageable );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
@@ -53,7 +52,7 @@ public class CityController {
                     direction = Sort.Direction.ASC
             ) Pageable pageable
     ) {
-        return null;
+        return cityService.getCities( filter, pageable );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
@@ -62,7 +61,7 @@ public class CityController {
     public CityWithChildrenResponse getCity(
             @PathVariable Long id
     ) {
-        return null;
+        return cityService.getCity( id );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
@@ -71,8 +70,7 @@ public class CityController {
     public CityDetailsResponse createCity(
             @Valid @RequestBody CityCreateRequest request
     ) {
-        // return cityService.createCity(request);
-        return null;
+         return cityService.create( request );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
@@ -82,25 +80,35 @@ public class CityController {
             @PathVariable Long id,
             @Valid @RequestBody CityUpdateRequest request
     ) {
-        return null;
+        return cityService.update( id, request );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCity(
-            @PathVariable Long id
+            @PathVariable Long id,
+            @RequestParam(
+                    required = false,
+                    defaultValue = "true"
+            )
+            boolean cascade
     ) {
-        cityService.deleteCity(id);
+        cityService.delete( id, cascade );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
     @PostMapping("/{id}/restore")
     @ResponseStatus(HttpStatus.OK)
     public CityDetailsResponse restoreCity(
-            @PathVariable Long id
+            @PathVariable Long id,
+            @RequestParam(
+                    required = false,
+                    defaultValue = "true"
+            )
+            boolean cascade
     ) {
-        return null;
+        return cityService.restore( id, cascade );
     }
 
 

@@ -27,10 +27,13 @@ public class SeatController {
     @ResponseStatus(HttpStatus.OK)
     public PageModel<EntityReference<Seat>> getSeatReferences(
             @RequestParam(
-                    name = "filter",
-                    required = false,
-                    defaultValue = ""
-            ) String nameFilter,
+                    name = "rowNumber",
+                    required = false
+            ) Integer rowNumber,
+            @RequestParam(
+                    name = "seatNumber",
+                    required = false
+            ) Integer seatNumber,
             @PageableDefault(
                     page = 0,
                     size = 20,
@@ -38,7 +41,7 @@ public class SeatController {
                     direction = Sort.Direction.ASC
             ) Pageable pageable
     ) {
-        return null;
+        return seatService.getReferences(rowNumber, seatNumber, pageable);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
@@ -52,7 +55,7 @@ public class SeatController {
                     direction = Sort.Direction.ASC
             ) Pageable pageable
     ) {
-        return null;
+        return seatService.getSeats(filter, pageable);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
@@ -61,7 +64,7 @@ public class SeatController {
     public SeatDetailsResponse getSeat(
             @PathVariable Long id
     ) {
-        return null;
+        return seatService.getSeat(id);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
@@ -70,7 +73,7 @@ public class SeatController {
     public SeatDetailsResponse createSeat(
             @Valid @RequestBody SeatCreateRequest request
     ) {
-        return null;
+        return seatService.create(request);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
@@ -80,23 +83,34 @@ public class SeatController {
             @PathVariable Long id,
             @Valid @RequestBody SeatUpdateRequest request
     ) {
-        return null;
+        return seatService.update(id, request);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteSeat(
-            @PathVariable Long id
+            @PathVariable Long id,
+            @RequestParam(
+                    required = false,
+                    defaultValue = "true"
+            )
+            boolean cascade
     ) {
+        seatService.delete(id, cascade);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
     @PostMapping("/{id}/restore")
     @ResponseStatus(HttpStatus.OK)
     public SeatDetailsResponse restoreSeat(
-            @PathVariable Long id
+            @PathVariable Long id,
+            @RequestParam(
+                    required = false,
+                    defaultValue = "true"
+            )
+            boolean cascade
     ) {
-        return null;
+        return seatService.restore(id, cascade);
     }
 }

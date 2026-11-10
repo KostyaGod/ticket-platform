@@ -5,21 +5,21 @@ import dev.kostya.ticketplatform.infrastructure.dto.request.CityUpdateRequest;
 import dev.kostya.ticketplatform.infrastructure.dto.response.CityDetailsResponse;
 import dev.kostya.ticketplatform.infrastructure.dto.response.CityWithChildrenResponse;
 import dev.kostya.ticketplatform.infrastructure.entity.City;
-import dev.kostya.ticketplatform.infrastructure.sync.dto.CitySyncDto;
-import dev.kostya.ticketplatform.infrastructure.sync.projection.CitySyncProjection;
 import org.mapstruct.*;
 
+import java.util.List;
+
 @Mapper(config = CentralMapperConfig.class)
-public interface CityMapper {
+public interface CityMapper extends CentralMapperConfig {
     City toEntity(CityCreateRequest request);
 
     CityDetailsResponse toDetailsResponse(City city);
+
+    List<CityDetailsResponse> toDetailsResponseList(List<City> cityList);
 
     @Mapping(target = "children", source = "venues")
     CityWithChildrenResponse toWithChildrenResponse(City city);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(CityUpdateRequest request, @MappingTarget City entity);
-
-    CitySyncDto toCitySyncDto(CitySyncProjection city);
 }

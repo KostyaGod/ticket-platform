@@ -38,7 +38,7 @@ public class HallController {
                     direction = Sort.Direction.ASC
             ) Pageable pageable
     ) {
-        return null;
+        return hallService.getReferences( nameFilter, pageable );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
@@ -52,7 +52,7 @@ public class HallController {
                     direction = Sort.Direction.ASC
             ) Pageable pageable
     ) {
-        return null;
+        return hallService.getHalls( filter, pageable );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
@@ -61,7 +61,7 @@ public class HallController {
     public HallWithChildrenResponse getHall(
             @PathVariable Long id
     ) {
-        return null;
+        return hallService.getHall( id );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
@@ -70,7 +70,7 @@ public class HallController {
     public HallDetailsResponse createHall(
             @Valid @RequestBody HallCreateRequest request
     ) {
-        return null;
+        return hallService.create( request );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
@@ -80,7 +80,7 @@ public class HallController {
             @PathVariable Long id,
             @Valid @RequestBody HallUpdateRequest request
     ) {
-        return null;
+        return hallService.update( id, request );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'SERVER')")
@@ -89,6 +89,7 @@ public class HallController {
     public void deleteHall(
             @PathVariable Long id
     ) {
+        hallService.delete( id, false );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
@@ -97,6 +98,6 @@ public class HallController {
     public HallDetailsResponse restoreHall(
             @PathVariable Long id
     ) {
-        return null;
+        return hallService.restore( id, false );
     }
 }
