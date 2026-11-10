@@ -10,4 +10,19 @@ public record SessionShortResponse(
         EntityReference<VenueSnapshot> venue,
         Instant startAt
 ) {
+    public SessionShortResponse(Long id, VenueSnapshot venue, Instant startAt) {
+        this(
+                id,
+                new EntityReference<>(venue),
+                startAt
+        );
+    }
+
+    public SessionShortResponse(Long id, Long venueId, String venueName, Instant startAt) {
+        this(
+                id,
+                new EntityReference<>(venueId, venueName),
+                startAt
+        );
+    }
 }

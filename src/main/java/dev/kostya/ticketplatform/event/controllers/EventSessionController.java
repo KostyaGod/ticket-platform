@@ -2,13 +2,14 @@ package dev.kostya.ticketplatform.event.controllers;
 
 import dev.kostya.ticketplatform.event.dto.base.Range;
 import dev.kostya.ticketplatform.event.dto.base.RequestMeta;
+import dev.kostya.ticketplatform.event.dto.request.SessionCalendarFilter;
 import dev.kostya.ticketplatform.event.dto.request.SessionCreateRequest;
 import dev.kostya.ticketplatform.event.dto.request.SessionFilter;
 import dev.kostya.ticketplatform.event.dto.request.SessionUpdateRequest;
 import dev.kostya.ticketplatform.event.dto.base.PageModel;
 import dev.kostya.ticketplatform.event.dto.response.SessionDetailsResponse;
 import dev.kostya.ticketplatform.event.dto.response.SessionShortResponse;
-import dev.kostya.ticketplatform.event.services.EventService;
+import dev.kostya.ticketplatform.event.enums.DeletedViewFilter;
 import dev.kostya.ticketplatform.event.services.EventSessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -18,8 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 @RestController
@@ -27,36 +28,46 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventSessionController {
     private final EventSessionService sessionService;
-    private final EventService eventService;
 
-    @GetMapping()
+    @GetMapping("/{eventId}")
     @ResponseStatus(HttpStatus.OK)
     public PageModel<SessionShortResponse> getSessions(
             @ModelAttribute RequestMeta meta,
-            @ModelAttribute Range<LocalDate> dateFilter,
+            @ModelAttribute Range<Instant> dateFilter,
+            @PathVariable Long eventId,
             @PageableDefault(
                     size = 20,
                     sort = "startAt",
                     direction = Sort.Direction.ASC
             ) Pageable pageable
     ) {
-        return null;
+        return sessionService.getShortSessions( dateFilter, eventId, pageable );
     }
 
-    @GetMapping("/available-days")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'SERVER')")
+    @GetMapping("/by-event/{eventId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<LocalDate> getSessionDates(
+    public PageModel<SessionShortResponse> getSessionsByEvent(
             @ModelAttribute RequestMeta meta,
-            @ModelAttribute Range<LocalDate> dateFilter,
-            @ModelAttribute Range<LocalTime> timeFilter
+            @PathVariable Long eventId,
+            @RequestParam(
+                    name = "filter",
+                    required = false,
+                    defaultValue = "ACTIVE_ONLY"
+            ) DeletedViewFilter deletedFilter,
+            @PageableDefault(
+                    size = 20,
+                    sort = "startAt",
+                    direction = Sort.Direction.ASC
+            ) Pageable pageable
     ) {
-        return null;
+        return sessionService.getSessionsByEvent( eventId, deletedFilter, pageable );
     }
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'SERVER')")
     @GetMapping("/data")
     @ResponseStatus(HttpStatus.OK)
-    public PageModel<SessionDetailsResponse> getSessions(
+    public PageModel<SessionDetailsResponse> getSessionsTable(
             @ModelAttribute RequestMeta meta,
             @ModelAttribute SessionFilter filter,
             @PageableDefault(
@@ -65,18 +76,17 @@ public class EventSessionController {
                     direction = Sort.Direction.ASC
             ) Pageable pageable
     ) {
-
-        return null;
+        return sessionService.getDetailedSessions( filter, pageable );
     }
 
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'SERVER')")
-    @GetMapping("/by-event/{eventId}")
+    @GetMapping("/available-days/{eventId}")
     @ResponseStatus(HttpStatus.OK)
-    public PageModel<SessionShortResponse> getSessionsByEvent(
+    public List<LocalDate> getSessionDates(
             @ModelAttribute RequestMeta meta,
+            @ModelAttribute SessionCalendarFilter calendarFilter,
             @PathVariable Long eventId
     ) {
-        return null;
+        return sessionService.getSessionDates( calendarFilter.date(), calendarFilter.time(), eventId );
     }
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'SERVER')")
@@ -85,17 +95,7 @@ public class EventSessionController {
     public SessionDetailsResponse createSession(
             @RequestBody SessionCreateRequest request
     ) {
-        return null;
-    }
-
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'SERVER')")
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteSession(
-            @ModelAttribute RequestMeta meta,
-            @PathVariable Long id
-    ) {
-        return;
+        return sessionService.create( request );
     }
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'SERVER')")
@@ -103,8 +103,37 @@ public class EventSessionController {
     @ResponseStatus(HttpStatus.OK)
     public SessionUpdateRequest updateSession(
             @RequestBody SessionUpdateRequest request,
-            @PathVariable String id
+            @PathVariable Long id
     ) {
-        return null;
+        return sessionService.update( id, request );
+    }
+
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'SERVER')")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteSession(
+            @ModelAttribute RequestMeta meta,
+            @PathVariable Long id,
+            @RequestParam(
+                    required = false,
+                    defaultValue = "true"
+            )
+            boolean cascade
+    ) {
+        sessionService.delete( id, cascade );
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @PostMapping("/{id}/restore")
+    @ResponseStatus(HttpStatus.OK)
+    public SessionDetailsResponse restoreSession(
+            @PathVariable Long id,
+            @RequestParam(
+                    required = false,
+                    defaultValue = "true"
+            )
+            boolean cascade
+    ) {
+        return sessionService.restore( id, cascade );
     }
 }
