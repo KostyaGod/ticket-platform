@@ -10,7 +10,7 @@ public record UserResponse(
         String username,
         String email,
         Role role,
-        UserStatus status,
+        UserStatus userStatus,
         EntityMetadata<User> metadata
 ) {
 }

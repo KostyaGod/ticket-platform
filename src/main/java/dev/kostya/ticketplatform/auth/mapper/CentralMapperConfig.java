@@ -2,6 +2,8 @@ package dev.kostya.ticketplatform.auth.mapper;
 
 import dev.kostya.ticketplatform.auth.entity.SoftDeletableEntity;
 import dev.kostya.ticketplatform.auth.dto.base.EntityMetadata;
+import dev.kostya.ticketplatform.event.dto.base.EntityReference;
+import dev.kostya.ticketplatform.event.entity.IdentifiableAndNamed;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.MapperConfig;
 import org.mapstruct.ReportingPolicy;
@@ -14,5 +16,9 @@ import org.mapstruct.ReportingPolicy;
 public interface CentralMapperConfig {
     default <T extends SoftDeletableEntity> EntityMetadata<T> mapMetadata(T entity) {
         return entity != null ? new EntityMetadata<>(entity) : null;
+    }
+
+    default <T extends IdentifiableAndNamed> EntityReference<T> mapReference(T entity) {
+        return entity != null ? new EntityReference<>(entity) : null;
     }
 }

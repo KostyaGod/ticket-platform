@@ -2,6 +2,8 @@ package dev.kostya.ticketplatform.auth.specifications;
 
 import dev.kostya.ticketplatform.auth.entity.SoftDeletableEntity;
 import dev.kostya.ticketplatform.auth.enums.DeletedViewFilter;
+import dev.kostya.ticketplatform.auth.dto.base.EntityMetadataFilter;
+import jakarta.persistence.criteria.Path;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
@@ -13,9 +15,8 @@ public final class SpecificationSupport {
             String field,
             String value
     ) {
-        if (value == null || value.isBlank()) {
-            return null;
-        }
+        if (value == null || value.isBlank())
+            return Specification.unrestricted();
 
         return (root, query, cb) ->
                 cb.like(
@@ -28,21 +29,24 @@ public final class SpecificationSupport {
             String field,
             Object value
     ) {
-        if (value == null) {
-            return null;
-        }
+        if (value == null)
+            return Specification.unrestricted();
 
-        return (root, query, cb) ->
-                cb.equal(root.get(field), value);
+        return (root, query, cb) -> {
+            Path<?> path = root;
+            for (String part : field.split("\\.")) {
+                path = path.get(part);
+            }
+            return cb.equal(path, value);
+        };
     }
 
     public static <T, V extends Comparable<? super V>> Specification<T> greaterThanOrEqualTo(
             String field,
             V value
     ) {
-        if (value == null) {
-            return null;
-        }
+        if (value == null)
+            return Specification.unrestricted();
 
         return (root, query, cb) ->
                 cb.greaterThanOrEqualTo(
@@ -55,9 +59,8 @@ public final class SpecificationSupport {
             String field,
             V value
     ) {
-        if (value == null) {
-            return null;
-        }
+        if (value == null)
+            return Specification.unrestricted();
 
         return (root, query, cb) ->
                 cb.lessThanOrEqualTo(
@@ -72,11 +75,11 @@ public final class SpecificationSupport {
             V to
     ) {
         if (from == null && to == null) {
-            return null;
+            return Specification.unrestricted();
         } else if (from == null) {
-            return lessThanOrEqualTo(field, to);
+            return lessThanOrEqualTo( field, to );
         } else if (to == null) {
-            return greaterThanOrEqualTo(field, from);
+            return greaterThanOrEqualTo( field, from );
         }
 
         return (root, query, cb) ->
@@ -86,12 +89,43 @@ public final class SpecificationSupport {
     public static <T extends SoftDeletableEntity> Specification<T> filterByDeleted(
             DeletedViewFilter filter
     ) {
-        if (filter == null || filter.equals(DeletedViewFilter.ALL)) return null;
+        if (filter == null)
+            return (root, query, cb) -> cb.isNull( root.get("deletedAt") );
+        else if (filter.equals( DeletedViewFilter.ALL ))
+            return Specification.unrestricted();
 
         return (root, query, cb) -> switch (filter) {
-                case ACTIVE_ONLY -> cb.isNull(root.get("deletedAt"));
-                case DELETED_ONLY -> cb.isNotNull(root.get("deletedAt"));
+                case ACTIVE_ONLY -> cb.isNull( root.get("deletedAt") );
+                case DELETED_ONLY -> cb.isNotNull( root.get("deletedAt") );
                 default -> null;
         };
+    }
+
+    public static <T extends SoftDeletableEntity> Specification<T> filterByMetadata(
+            EntityMetadataFilter filter
+    ) {
+        if (filter == null)
+            return Specification.unrestricted();
+
+        Specification<T> specification = Specification.allOf(
+                equalTo( "status", filter.status() ),
+                between(
+                        "createdAt",
+                        filter.createdAtRange().from(),
+                        filter.createdAtRange().to()
+                ),
+                filterByDeleted( filter.deletedFilter() )
+        );
+
+        if (filter.deletedFilter().equals( DeletedViewFilter.DELETED_ONLY) ) {
+            specification = specification
+                    .and(between(
+                            "deletedAt",
+                            filter.deletedAtRange().from(),
+                            filter.deletedAtRange().to())
+                    );
+        }
+
+        return specification;
     }
 }
