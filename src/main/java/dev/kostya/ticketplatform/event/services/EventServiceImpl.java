@@ -6,11 +6,10 @@ import dev.kostya.ticketplatform.event.dto.request.EventCreateRequest;
 import dev.kostya.ticketplatform.event.dto.request.EventFilter;
 import dev.kostya.ticketplatform.event.dto.request.EventUpdateRequest;
 import dev.kostya.ticketplatform.event.dto.response.EventCatalogResponse;
-import dev.kostya.ticketplatform.event.dto.base.PageMeta;
 import dev.kostya.ticketplatform.event.dto.base.PageModel;
 import dev.kostya.ticketplatform.event.dto.response.EventDetailsResponse;
 import dev.kostya.ticketplatform.event.entity.Event;
-import dev.kostya.ticketplatform.event.entity.IdentifiableAndNamed;
+import dev.kostya.ticketplatform.event.enums.DeletedViewFilter;
 import dev.kostya.ticketplatform.event.exception.EntityNotFoundException;
 import dev.kostya.ticketplatform.event.mapper.EventMapper;
 import dev.kostya.ticketplatform.event.repositories.EventCatalogRepository;
@@ -23,7 +22,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -39,18 +37,14 @@ public class EventServiceImpl implements EventService {
             EventCatalogFilter filter,
             Pageable pageable
     ) {
-        Page<EventCatalogResponse> page =
-                catalogRepository.findCatalogWithFilters(
+        Page<EventCatalogResponse> page = catalogRepository
+                .findCatalogWithFilters(
                         cityId,
                         filter,
                         pageable
                 );
-        PageMeta meta = new PageMeta(page);
 
-        return new PageModel<>(
-                page.getContent(),
-                meta
-        );
+        return new PageModel<>( page );
     }
 
     @Override
@@ -58,22 +52,27 @@ public class EventServiceImpl implements EventService {
             String nameFilter,
             Pageable pageable
     ) {
-        Page<IdentifiableAndNamed> page = eventRepository
-                .findByNameContainingIgnoreCase( nameFilter, pageable );
+        Page<EntityReference<Event>> page = eventRepository
+                .findByNameContainingIgnoreCaseAndDeletedAtIsNull( nameFilter, pageable );
 
-        List<EntityReference<Event>> content = page.getContent().stream()
-                .map( eventMapper::toReference )
-                .toList();
-
-        return new PageModel<>(
-                content,
-                new PageMeta(page)
-        );
+        return new PageModel<>( page );
     }
 
     @Override
     public EventDetailsResponse getDetails(Long eventId) {
-        Event event = eventRepository.findById( eventId )
+        return this.getDetails( eventId, null );
+    }
+
+    @Override
+    public EventDetailsResponse getDetails(
+            Long eventId,
+            DeletedViewFilter deletedFilter
+    ) {
+        Event event = (switch (deletedFilter) {
+            case ALL -> eventRepository.findById( eventId );
+            case DELETED_ONLY -> eventRepository.findByIdAndDeletedAtIsNotNull( eventId );
+            case null, default -> eventRepository.findByIdAndDeletedAtIsNull( eventId );
+        })
                 .orElseThrow( () -> new EntityNotFoundException( "Event", eventId ) );
 
         return eventMapper.toDetailsResponse( event );
@@ -84,16 +83,12 @@ public class EventServiceImpl implements EventService {
             EventFilter filter,
             Pageable pageable
     ) {
-        Specification<Event> spec = EventSpecification.forFilter(filter);
-        Page<Event> page = eventRepository.findAll(spec, pageable);
-
-        List<EventDetailsResponse> content = page.getContent().stream()
-                .map( eventMapper::toDetailsResponse )
-                .toList();
+        Specification<Event> spec = EventSpecification.forFilter( filter );
+        Page<Event> page = eventRepository.findAll( spec, pageable );
 
         return new PageModel<>(
-                content,
-                new PageMeta(page)
+                page,
+                eventMapper::toDetailsResponseList
         );
     }
 
@@ -131,7 +126,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public EventDetailsResponse restore(Long id, boolean cascade) {
-        Event event = eventRepository.findById(id)
+        Event event = eventRepository.findById( id )
                 .orElseThrow( () -> new EntityNotFoundException( "Event", id ) );
 
         UUID operationId = event.restore();

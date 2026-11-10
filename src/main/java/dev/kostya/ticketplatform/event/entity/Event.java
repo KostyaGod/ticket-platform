@@ -44,4 +44,14 @@ public class Event extends SoftDeletableEntity implements IdentifiableAndNamed {
 
     @OneToMany(mappedBy = "event")
     private List<EventSession> sessions = new ArrayList<>();
+
+    public void addSession(EventSession session) {
+        sessions.add(session);
+        session.setEvent(this);
+    }
+
+    public void removeSession(EventSession session) {
+        sessions.remove(session);
+        session.setEvent(null);
+    }
 }

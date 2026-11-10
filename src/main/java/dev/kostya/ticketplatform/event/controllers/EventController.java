@@ -9,6 +9,7 @@ import dev.kostya.ticketplatform.event.dto.response.EventCatalogResponse;
 import dev.kostya.ticketplatform.event.dto.response.EventDetailsResponse;
 import dev.kostya.ticketplatform.event.dto.base.PageModel;
 import dev.kostya.ticketplatform.event.entity.Event;
+import dev.kostya.ticketplatform.event.enums.DeletedViewFilter;
 import dev.kostya.ticketplatform.event.services.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -35,20 +36,24 @@ public class EventController {
                     direction = Sort.Direction.ASC
             ) Pageable pageable
     ) {
-        return eventService.getCatalog(cityId, filter, pageable);
+        return eventService.getCatalog( cityId, filter, pageable );
     }
 
     @GetMapping("/list")
     @ResponseStatus(HttpStatus.OK)
     public PageModel<EntityReference<Event>> getEventReferences(
-            @RequestParam String nameFilter,
+            @RequestParam(
+                    name = "filter",
+                    required = false,
+                    defaultValue = ""
+            ) String nameFilter,
             @PageableDefault(
                     size = 20,
                     sort = "id",
                     direction = Sort.Direction.ASC
             ) Pageable pageable
     ) {
-        return eventService.getReferences(nameFilter, pageable);
+        return eventService.getReferences( nameFilter, pageable );
     }
 
     @GetMapping("/{id}")
@@ -56,7 +61,21 @@ public class EventController {
     public EventDetailsResponse getEvent(
             @PathVariable Long id
     ) {
-        return eventService.getDetails(id);
+        return eventService.getDetails( id );
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @GetMapping("/admin/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public EventDetailsResponse getEvent(
+            @PathVariable Long id,
+            @RequestParam(
+                    name = "filter",
+                    required = false,
+                    defaultValue = "ACTIVE_ONLY"
+            ) DeletedViewFilter deletedFilter
+    ) {
+        return eventService.getDetails( id, deletedFilter );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
@@ -70,7 +89,7 @@ public class EventController {
                     direction = Sort.Direction.ASC
             ) Pageable pageable
     ) {
-        return eventService.getEvents(filter, pageable);
+        return eventService.getEvents( filter, pageable );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
@@ -79,7 +98,7 @@ public class EventController {
     public EventDetailsResponse createEvent(
             @RequestBody EventCreateRequest eventRequest
     ) {
-        return eventService.create(eventRequest);
+        return eventService.create( eventRequest );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
@@ -89,7 +108,7 @@ public class EventController {
             @PathVariable Long id,
             @RequestBody EventUpdateRequest request
     ) {
-        return eventService.update(id, request);
+        return eventService.update( id, request );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
@@ -97,10 +116,13 @@ public class EventController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteEvent(
             @PathVariable Long id,
-            @RequestParam(required = false, defaultValue = "true")
+            @RequestParam(
+                    required = false,
+                    defaultValue = "true"
+            )
             boolean cascade
     ) {
-        eventService.delete(id, cascade);
+        eventService.delete( id, cascade );
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
@@ -108,9 +130,12 @@ public class EventController {
     @ResponseStatus(HttpStatus.OK)
     public EventDetailsResponse restoreEvent(
             @PathVariable Long id,
-            @RequestParam(required = false, defaultValue = "true")
+            @RequestParam(
+                    required = false,
+                    defaultValue = "true"
+            )
             boolean cascade
     ) {
-        return eventService.restore(id, cascade);
+        return eventService.restore( id, cascade );
     }
 }

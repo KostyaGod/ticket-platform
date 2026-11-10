@@ -8,8 +8,6 @@ import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.MapperConfig;
 import org.mapstruct.ReportingPolicy;
 
-import java.util.List;
-
 
 @MapperConfig(
         componentModel = "spring",
@@ -23,15 +21,5 @@ public interface CentralMapperConfig {
 
     default <T extends IdentifiableAndNamed> EntityReference<T> mapReference(T entity) {
         return entity != null ? new EntityReference<>(entity) : null;
-    }
-
-    default <T extends IdentifiableAndNamed> List<EntityReference<T>> mapReferenceList(
-            List<T> entities
-    ) {
-        if (entities == null) return null;
-
-        return entities.stream()
-                .map( EntityReference::new )
-                .toList();
     }
 }

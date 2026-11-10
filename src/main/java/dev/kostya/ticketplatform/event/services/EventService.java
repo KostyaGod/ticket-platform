@@ -9,6 +9,7 @@ import dev.kostya.ticketplatform.event.dto.response.EventCatalogResponse;
 import dev.kostya.ticketplatform.event.dto.base.PageModel;
 import dev.kostya.ticketplatform.event.dto.response.EventDetailsResponse;
 import dev.kostya.ticketplatform.event.entity.Event;
+import dev.kostya.ticketplatform.event.enums.DeletedViewFilter;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,8 @@ public interface EventService {
     );
 
     EventDetailsResponse getDetails(Long eventId);
+
+    EventDetailsResponse getDetails(Long eventId, DeletedViewFilter deletedFilter);
 
     PageModel<EventDetailsResponse> getEvents(EventFilter filter, Pageable pageable);
 

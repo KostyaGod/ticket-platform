@@ -11,13 +11,19 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
+import java.util.List;
+
 @Mapper(config = CentralMapperConfig.class)
-public interface EventMapper {
+public interface EventMapper extends CentralMapperConfig {
     Event toEntity(EventCreateRequest request);
 
     EventDetailsResponse toDetailsResponse(Event event);
 
     EntityReference<Event> toReference(IdentifiableAndNamed dto);
+
+    List<EntityReference<Event>> toReferenceList(List<IdentifiableAndNamed> dtoList);
+
+    List<EventDetailsResponse> toDetailsResponseList(List<Event> events);
 
     Event toEntity(IdentifiableAndNamed dto);
 

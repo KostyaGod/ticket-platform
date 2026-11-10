@@ -41,10 +41,12 @@ public class EventCatalogRepositoryImpl implements EventCatalogRepository {
               AND es.city_id = :cityId
               AND es.status = 'SCHEDULED'
               AND es.start_at > now()
+              AND es.deleted_at IS NULL
             ORDER BY es.start_at
             LIMIT 1
         ) s ON TRUE
         WHERE e.status = 'ACTIVE'
+          AND e.deleted_at IS NULL
         """);
 
         appendFilters(sb, filter);

@@ -13,7 +13,8 @@ public record EntityReference <T extends IdentifiableAndNamed>(
     public static <T extends IdentifiableAndNamed> EntityReference<T> of(
             IdentifiableAndNamed projection
     ) {
-        if (projection == null) return null;
-        return new EntityReference<T>( projection.getId(), projection.getName() );
+        return projection != null
+                ? new EntityReference<>( projection.getId(), projection.getName() )
+                : null;
     }
 }
