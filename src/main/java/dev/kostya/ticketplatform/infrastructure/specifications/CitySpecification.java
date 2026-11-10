@@ -16,7 +16,7 @@ public final class CitySpecification {
         if (filter == null) return null;
 
         return Specification.allOf(
-                stringContains("name", filter.name()),
+                stringContains( "name", filter.name() ),
                 filterByMetadata( filter.metadataFilter() )
         );
     }

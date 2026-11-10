@@ -15,8 +15,8 @@ public final class VenueSpecification {
         if (filter == null) return null;
 
         return Specification.allOf(
-                stringContains("name", filter.name()),
-                equalTo("city.id", filter.cityId()),
+                stringContains( "name", filter.name() ),
+                equalTo( "city.id", filter.cityId() ),
                 filterByMetadata( filter.metadataFilter() )
         );
     }

@@ -17,8 +17,8 @@ public final class SeatSpecification {
             Integer seatNumber
     ) {
         return Specification.allOf(
-                equalTo("rowNumber", rowNumber),
-                equalTo("seatNumber", seatNumber),
+                equalTo( "rowNumber", rowNumber ),
+                equalTo( "seatNumber", seatNumber ),
                 filterByDeleted( null )
         );
     }
@@ -27,9 +27,9 @@ public final class SeatSpecification {
         if (filter == null) return null;
 
         return Specification.allOf(
-                equalTo("hall.id", filter.hallId()),
-                equalTo("rowNumber", filter.rowNumber()),
-                equalTo("seatNumber", filter.seatNumber()),
+                equalTo( "hall.id", filter.hallId() ),
+                equalTo( "rowNumber", filter.rowNumber() ),
+                equalTo( "seatNumber", filter.seatNumber() ),
                 filterByMetadata( filter.metadataFilter() )
         );
     }

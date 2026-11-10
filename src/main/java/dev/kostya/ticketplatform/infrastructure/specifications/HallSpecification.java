@@ -17,8 +17,8 @@ public final class HallSpecification {
         if (filter == null) return null;
 
         return Specification.allOf(
-                stringContains("name", filter.name()),
-                equalTo("venue.id", filter.venueId()),
+                stringContains( "name", filter.name() ),
+                equalTo( "venue.id", filter.venueId() ),
                 filterByMetadata( filter.metadataFilter() )
         );
     }
