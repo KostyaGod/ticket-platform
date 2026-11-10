@@ -42,31 +42,4 @@ public class User extends SoftDeletableEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "user_status", nullable = false, length = 80)
     private UserStatus userStatus;
-
-    @Override
-    public void markDeleted(UUID operationId) {
-        long timestamp = System.currentTimeMillis();
-        this.username = "deleted@" + timestamp + "_" + this.username;
-        this.email = "deleted." + timestamp + "." + this.email;
-
-        super.markDeleted(operationId);
-    }
-
-    @Override
-    public UUID restore() {
-        if (this.username != null) {
-            this.username = this.username.replaceFirst(
-                    "^deleted@\\d+_",
-                    ""
-            );
-        }
-
-        if (this.email != null) {
-            this.email = this.email.replaceFirst(
-                    "^deleted\\.\\d+\\.",
-                    ""
-            );
-        }
-        return super.restore();
-    }
 }

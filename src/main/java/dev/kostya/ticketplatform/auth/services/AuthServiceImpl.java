@@ -38,8 +38,8 @@ public class AuthServiceImpl implements AuthService {
 
         Optional<User> foundOpt =
                 login.contains("@")
-                        ? repository.findByEmail(login)
-                        : repository.findByUsername(login);
+                        ? repository.findByEmailAndDeletedAtIsNull(login)
+                        : repository.findByUsernameAndDeletedAtIsNull(login);
 
         User user = foundOpt.orElseThrow(InvalidCredentialsException::new);
 
@@ -59,11 +59,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Tokens register(RegisterRequest request) {
-        if (repository.existsByEmail(request.email())) {
+        if (repository.existsByEmailAndDeletedAtIsNull(request.email())) {
             throw new EmailAlreadyExistsException();
         }
 
-        if (repository.existsByUsername(request.username())) {
+        if (repository.existsByUsernameAndDeletedAtIsNull(request.username())) {
             throw new UsernameAlreadyExistsException();
         }
 

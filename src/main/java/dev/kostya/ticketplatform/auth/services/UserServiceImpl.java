@@ -31,59 +31,61 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getProfile(Long id) {
-        User user = repository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
+        User user = repository.findById( id )
+                .orElseThrow( () -> new UserNotFoundException(id) );
 
-        return mapper.toResponse(user);
+        return mapper.toResponse( user );
     }
 
     @Transactional
     @Override
     public UserResponse updateProfile(Long id, UpdateProfileRequest request) {
-        User user = repository.findById(id)
-                        .orElseThrow(() -> new UserNotFoundException(id));
+        User user = repository.findById( id )
+                        .orElseThrow( () -> new UserNotFoundException(id) );
 
-        validateUniqueness(user, request.username(), request.email());
+        validateUniqueness( user, request.username(), request.email() );
 
-        mapper.updateEntityFromDto(request, user);
-        return mapper.toResponse(user);
+        mapper.updateEntityFromDto( request, user );
+        return mapper.toResponse( user );
     }
 
     @Override
     public UserResponse create(CreateUserRequest request) {
-        User user = mapper.toEntity(request);
+        validateUniqueness( null, request.username(), request.email() );
+
+        User user = mapper.toEntity( request );
         user.setPasswordHash(
                 passwordEncoder.encode(
                         request.password()
                 )
         );
 
-        repository.save(user);
+        repository.save( user );
 
-        return mapper.toResponse(user);
+        return mapper.toResponse( user );
     }
 
     @Transactional
     @Override
     public UserResponse updateById(Long id, UpdateUserRequest request) {
-        User user = repository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
+        User user = repository.findById( id )
+                .orElseThrow( () -> new UserNotFoundException( id ) );
 
-        validateUniqueness(user, request.username(), request.email());
+        validateUniqueness( user, request.username(), request.email() );
 
-        mapper.updateEntityFromDto(request, user);
+        mapper.updateEntityFromDto( request, user );
 
-        return mapper.toResponse(user);
+        return mapper.toResponse( user );
     }
 
     @Transactional
     @Override
     public void deleteById(Long id) {
-        User user = repository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
+        User user = repository.findById( id )
+                .orElseThrow( () -> new UserNotFoundException( id ) );
 
         UUID operationId = UUID.randomUUID();
-        user.markDeleted(operationId);
+        user.markDeleted( operationId );
 
         // Каскадный вызов микросервисов для удаления связанных сущностей
         // В частности Scope Table
@@ -97,33 +99,33 @@ public class UserServiceImpl implements UserService {
                 request.newPassword()
         )) throw new NewPasswordMatchesOldException();
 
-        User user = repository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
+        User user = repository.findById( id )
+                .orElseThrow( () -> new UserNotFoundException( id ) );
 
         if (!passwordEncoder.matches(
                 request.currentPassword(),
                 user.getPasswordHash()
         )) throw new CurrentPasswordMismatchException();
 
-        user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+        user.setPasswordHash( passwordEncoder.encode( request.newPassword() ) );
     }
 
     @Transactional
     @Override
     public void changeStatusById(Long id, UserStatus status) {
-        User user = repository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
+        User user = repository.findById( id )
+                .orElseThrow(() -> new UserNotFoundException( id ));
 
-        user.setUserStatus(status);
+        user.setUserStatus( status );
     }
 
     @Override
     public UserPageResponse getUsers(UserFilter filter, Pageable pageable) {
-        Specification<User> spec = UserSpecification.build(filter);
-        Page<User> userPage = repository.findAll(spec, pageable);
+        Specification<User> spec = UserSpecification.build( filter );
+        Page<User> userPage = repository.findAll( spec, pageable );
 
         List<UserResponse> users = userPage.getContent().stream()
-                .map(mapper::toResponse)
+                .map( mapper::toResponse )
                 .toList();
 
         return new UserPageResponse(
@@ -140,12 +142,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByUsername(String username) {
-        return repository.findByUsername(username).orElse(null);
+        return repository.findByUsername( username ).orElse(null);
     }
 
     @Override
     public User findByEmail(String email) {
-        return repository.findByEmail(email).orElse(null);
+        return repository.findByEmail( email ).orElse(null);
     }
 
     @Transactional
@@ -156,15 +158,15 @@ public class UserServiceImpl implements UserService {
 
         if ( !user.isDeleted() ) throw new UserNotDeletedException( id );
 
-        UUID operationId = user.restore();
-
-        if ( repository.existsByEmail( user.getEmail() ) ) {
+        if ( repository.existsByEmailAndDeletedAtIsNull( user.getEmail() ) ) {
             throw new RestoreUserException("email");
         }
 
-        if ( repository.existsByUsername( user.getUsername() ) ) {
+        if ( repository.existsByUsernameAndDeletedAtIsNull( user.getUsername() ) ) {
             throw new RestoreUserException("username");
         }
+
+        UUID operationId = user.restore();
 
         if (cascade) {
             // Каскадный вызов микросервисов для восстановления связанных сущностей
@@ -175,13 +177,13 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validateUniqueness(User currentUser, String newUsername, String newEmail) {
-        if (newUsername != null && !newUsername.equals(currentUser.getUsername())) {
-            if (repository.existsByUsername(newUsername)) {
+        if (newUsername != null && (currentUser == null || !newUsername.equals( currentUser.getUsername() ))) {
+            if (repository.existsByUsernameAndDeletedAtIsNull( newUsername )) {
                 throw new UsernameAlreadyExistsException();
             }
         }
-        if (newEmail != null && !newEmail.equals(currentUser.getEmail())) {
-            if (repository.existsByEmail(newEmail)) {
+        if (newEmail != null && (currentUser == null || !newEmail.equals( currentUser.getEmail() ))) {
+            if (repository.existsByEmailAndDeletedAtIsNull( newEmail )) {
                 throw new EmailAlreadyExistsException();
             }
         }

@@ -73,7 +73,7 @@ public class AuthServiceImplTest {
             .email(email)
             .passwordHash("encoded-password")
             .role(Role.ROLE_CLIENT)
-            .status(UserStatus.ACTIVE)
+            .userStatus(UserStatus.ACTIVE)
             .build();
 
     private final UserPrincipal userPrincipal = new UserPrincipal(id, Role.ROLE_CLIENT);
@@ -175,7 +175,7 @@ public class AuthServiceImplTest {
                 .email(email)
                 .passwordHash("encoded-password")
                 .role(Role.ROLE_CLIENT)
-                .status(UserStatus.BLOCKED)
+                .userStatus(UserStatus.BLOCKED)
                 .build();
 
         configureAndCreateLoginRequest(request, Optional.of(blockedUser));
