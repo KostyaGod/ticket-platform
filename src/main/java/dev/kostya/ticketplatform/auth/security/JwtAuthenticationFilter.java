@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +20,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    private static final String BEARER_PREFIX = "Bearer ";
     private final JwtService jwtService;
     private final CookieService cookieService;
 
@@ -28,16 +30,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-        Optional<String> tokenOpt = cookieService.extractAccessToken(request);
+        String token = extractToken(request);
 
-        if (tokenOpt.isEmpty()) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        String token = tokenOpt.get();
-
-        if (!jwtService.validateAccess(token)) {
+        if (token == null || !jwtService.validateAccess(token)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -60,5 +55,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private String extractToken(HttpServletRequest request) {
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeader != null && authHeader.startsWith(BEARER_PREFIX)) {
+            return authHeader.substring(BEARER_PREFIX.length()).trim();
+        }
+        return cookieService.extractAccessToken(request).orElse(null);
     }
 }

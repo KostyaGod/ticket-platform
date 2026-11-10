@@ -23,6 +23,11 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/v3/api-docs*/**",
             "/auth/**",
+            "/events/catalog",
+            "/events/list",
+            "/events/{id:[0-9]+}",
+            "/sessions/{eventId:[0-9]+}",
+            "/sessions/available-days/**"
     };
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;

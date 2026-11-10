@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Log4j2
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "dev.kostya.ticketplatform.auth")
 public class GlobalExceptionHandler {
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
