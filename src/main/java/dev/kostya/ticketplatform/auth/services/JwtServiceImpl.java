@@ -17,6 +17,19 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.UUID;
 
+/**
+ * Реализация сервиса для работы с JSON Web Token (JWT).
+ * <p>
+ * Обеспечивает раздельное управление токенами доступа (Access Token) и обновления (Refresh Token):
+ * <ul>
+ *   <li><b>Access Token:</b> Короткоживущий токен, подписываемый отдельным секретом ({@code accessSecret}),
+ *       содержит идентификатор пользователя (subject), роль (claim "role") и ID сессии (claim "session").
+ *       Используется для авторизации запросов без обращения к БД.</li>
+ *   <li><b>Refresh Token:</b> Долгоживущий токен, подписываемый отдельным секретом ({@code refreshSecret}),
+ *       содержит ID пользователя, ID сессии и уникальный идентификатор токена (claim "jti").
+ *       Используется для безопасной ротации сессии.</li>
+ * </ul>
+ */
 @Service
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
@@ -30,6 +43,14 @@ public class JwtServiceImpl implements JwtService {
         getRefreshKey();
     }
 
+    /**
+     * Генерирует пару токенов (Access и Refresh) для аутентифицированного пользователя.
+     *
+     * @param principal данные аутентифицированного пользователя
+     * @param sessionId идентификатор связанной сессии в Redis
+     * @param jti       уникальный идентификатор Refresh токена
+     * @return пара сгенерированных токенов {@link Tokens}
+     */
     @Override
     public Tokens generateTokenPair(
             UserPrincipal principal,
@@ -42,6 +63,13 @@ public class JwtServiceImpl implements JwtService {
         );
     }
 
+    /**
+     * Создает подписанный Access JWT токен.
+     *
+     * @param userPrincipal данные пользователя
+     * @param sessionId     идентификатор сессии
+     * @return строка компактного JWT токена
+     */
     @Override
     public String generateAccessToken(
             UserPrincipal userPrincipal,
@@ -59,6 +87,14 @@ public class JwtServiceImpl implements JwtService {
                 .compact();
     }
 
+    /**
+     * Создает подписанный Refresh JWT токен с включением случайного JTI.
+     *
+     * @param userPrincipal данные пользователя
+     * @param sessionId     идентификатор сессии
+     * @param jti           уникальный идентификатор токена для защиты от Replay атак
+     * @return строка компактного JWT токена
+     */
     @Override
     public String generateRefreshToken(
             UserPrincipal userPrincipal,
@@ -77,6 +113,12 @@ public class JwtServiceImpl implements JwtService {
                 .compact();
     }
 
+    /**
+     * Проверяет валидность и подпись переданного Access токена.
+     *
+     * @param token строка токена
+     * @return {@code true}, если подпись корректна и срок действия не истек
+     */
     @Override
     public boolean validateAccess(String token) {
         try {
@@ -87,6 +129,12 @@ public class JwtServiceImpl implements JwtService {
         }
     }
 
+    /**
+     * Проверяет валидность и подпись переданного Refresh токена.
+     *
+     * @param token строка токена
+     * @return {@code true}, если токен валиден
+     */
     @Override
     public boolean validateRefresh(String token) {
         try {

@@ -17,6 +17,24 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Optional;
 
+/**
+ * Фильтр безопасности сервлетов, перехватывающий каждый HTTP-запрос ровно один раз
+ * для выполнения аутентификации на основе JWT токенов доступа.
+ * <p>
+ * Принцип работы:
+ * <ol>
+ *   <li>Извлекает токен доступа с поддержкой двух каналов передачи (в приоритетном порядке):
+ *       <ul>
+ *         <li>HTTP-заголовок {@code Authorization: Bearer <token>} (для API-клиентов и микросервисов).</li>
+ *         <li>Безопасная HttpOnly Cookie {@code accessToken} (для SPA / браузерных сессий).</li>
+ *       </ul>
+ *   </li>
+ *   <li>Валидирует цифровую подпись и срок действия токена с помощью {@link JwtService}.</li>
+ *   <li>При успешной валидации воссоздает легковесный объект {@link UserPrincipal} непосредственно из claim'ов токена
+ *       (ID пользователя, роль, ID сессии), не выполняя блокирующих запросов к реляционной БД (Stateless подход).</li>
+ *   <li>Помещает объект аутентификации в {@link SecurityContextHolder} для дальнейших проверок прав доступа Spring Security.</li>
+ * </ol>
+ */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -57,6 +75,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    /**
+     * Извлекает JWT токен из заголовка Authorization либо из cookie.
+     *
+     * @param request текущий HTTP-запрос
+     * @return строка JWT токена либо {@code null}, если токен не найден
+     */
     private String extractToken(HttpServletRequest request) {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader != null && authHeader.startsWith(BEARER_PREFIX)) {

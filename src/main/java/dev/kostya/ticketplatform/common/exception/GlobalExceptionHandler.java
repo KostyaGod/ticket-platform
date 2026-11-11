@@ -12,6 +12,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Централизованный обработчик исключений контроллеров приложения (REST Controller Advice).
+ * <p>
+ * Перехватывает бизнес-исключения, ошибки безопасности, валидации и непредвиденные сбои,
+ * транслируя их в стандартизированный формат ответа {@link ErrorResponse} с соответствующими
+ * HTTP статус-кодами (400, 401, 403, 404, 409, 500).
+ */
 @Log4j2
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -46,6 +53,13 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage());
     }
 
+    /**
+     * Обрабатывает ошибки валидации входных DTO (аннотации @Valid / @NotNull / @Size и др.).
+     * Формирует карту нарушений по полям в details ответа.
+     *
+     * @param ex исключение валидации аргументов метода
+     * @return стандартизированный ответ 400 Bad Request с детализацией по полям
+     */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ErrorResponse handleValidationException(MethodArgumentNotValidException ex) {

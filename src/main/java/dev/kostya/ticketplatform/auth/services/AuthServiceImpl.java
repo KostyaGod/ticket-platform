@@ -23,6 +23,17 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Реализация сервиса аутентификации и авторизации пользователей.
+ * <p>
+ * Отвечает за:
+ * <ul>
+ *   <li>Вход пользователя по логину/email с проверкой хеша пароля и статуса учетной записи.</li>
+ *   <li>Регистрацию новых пользователей с проверкой уникальности username/email и хешированием пароля BCrypt.</li>
+ *   <li>Безопасную ротацию токенов (Refresh Flow) с защитой от Replay-атак через сверку JTI в Redis.</li>
+ *   <li>Завершение сеанса (Logout) с удалением сессии из хранилища.</li>
+ * </ul>
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -32,6 +43,20 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper mapper;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Выполняет аутентификацию пользователя.
+     * <p>
+     * 1. Определяет тип логина (email или username) по наличию символа '@'.<br>
+     * 2. Ищет активного (неудаленного) пользователя в БД.<br>
+     * 3. Сверяет пароль через {@link PasswordEncoder#matches}.<br>
+     * 4. Проверяет статус пользователя на предмет блокировки ({@link UserStatus#BLOCKED}).<br>
+     * 5. Создает новую сессию в Redis и возвращает пару Access/Refresh токенов.
+     *
+     * @param request запрос на вход (логин/email и пароль)
+     * @return пара JWT токенов
+     * @throws InvalidCredentialsException если логин или пароль не совпадают
+     * @throws UserBlockedException        если учетная запись пользователя заблокирована
+     */
     @Override
     public Tokens login(LoginRequest request) {
         String login = request.login();
@@ -57,6 +82,16 @@ public class AuthServiceImpl implements AuthService {
         return createSessionWithTokens(user);
     }
 
+    /**
+     * Регистрирует нового пользователя в системе.
+     * Проверяет уникальность email и username среди неудаленных пользователей,
+     * шифрует пароль алгоритмом BCrypt, сохраняет пользователя в БД и инициирует новую сессию.
+     *
+     * @param request данные для регистрации нового пользователя
+     * @return пара выданных JWT токенов
+     * @throws EmailAlreadyExistsException    если email уже занят
+     * @throws UsernameAlreadyExistsException если username уже занят
+     */
     @Override
     public Tokens register(RegisterRequest request) {
         if (repository.existsByEmailAndDeletedAtIsNull(request.email())) {
@@ -77,6 +112,23 @@ public class AuthServiceImpl implements AuthService {
         return createSessionWithTokens(saved);
     }
 
+    /**
+     * Выполняет безопасное обновление токенов доступа по Refresh токену.
+     * <p>
+     * Алгоритм ротации:
+     * <ol>
+     *   <li>Валидирует подпись и срок действия переданного токена.</li>
+     *   <li>Извлекает из токена {@code oldJti} и {@code sessionId}.</li>
+     *   <li>Проверяет в Redis, совпадает ли {@code oldJti} с текущим сохраненным JTI сессии.
+     *       Если JTI не совпадает (попытка повторного использования токена) — запрос отклоняется.</li>
+     *   <li>Извлекает пользователя и генерирует новый случайный {@code newJti}.</li>
+     *   <li>Атомарно перезаписывает JTI сессии в Redis и выпускает новую пару токенов.</li>
+     * </ol>
+     *
+     * @param refreshToken строка JWT Refresh токена
+     * @return новая пара JWT токенов
+     * @throws InvalidCredentialsException если токен невалиден или сессия отозвана
+     */
     @Override
     public Tokens refresh(String refreshToken) {
         if (!jwtService.validateRefresh(refreshToken)) {

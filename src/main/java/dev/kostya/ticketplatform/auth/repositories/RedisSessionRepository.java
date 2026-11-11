@@ -15,6 +15,22 @@ import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Репозиторий для управления пользовательскими сессиями в хранилище Redis.
+ * <p>
+ * Архитектура хранения сессий использует две взаимосвязанные структуры данных:
+ * <ul>
+ *   <li><b>Redis Hash (ключ "session:{sessionId}"):</b> Хранит детальные атрибуты конкретной сессии:
+ *       ID пользователя ({@code userId}), текущий JWT ID ({@code jti}), время создания ({@code createdAt})
+ *       и время истечения ({@code expiresAt}). Для данного ключа устанавливается TTL, равный сроку жизни Refresh токена.</li>
+ *   <li><b>Redis Set (ключ "user:{userId}"):</b> Содержит множество всех активных {@code sessionId} для конкретного пользователя.
+ *       Позволяет быстро находить все сессии пользователя (например, для личного кабинета или сброса всех сессий при смене пароля).</li>
+ * </ul>
+ * <p>
+ * Для исключения проблемы N+1 сетевых запросов при получении списка сессий используется <b>Redis Pipelining</b>,
+ * а также реализован механизм <i>ленивой сборки мусора (Lazy Garbage Collection)</i> для очистки ключей из Set,
+ * если соответствующий Hash сессии уже удалился по TTL.
+ */
 @Log4j2
 @Repository
 @RequiredArgsConstructor
@@ -30,6 +46,15 @@ public class RedisSessionRepository implements SessionRepository {
     private static final String CREATED_AT_FIELD = "createdAt";
     private static final String EXPIRES_AT_FIELD = "expiresAt";
 
+    /**
+     * Сохраняет новую сессию в Redis.
+     * <p>
+     * 1. Сохраняет параметры сессии в Hash с ключом "session:{sessionId}".<br>
+     * 2. Выставляет TTL ключа Hash на оставшееся время жизни сессии.<br>
+     * 3. Добавляет {@code sessionId} в Set "user:{userId}" для отслеживания сессий пользователя.
+     *
+     * @param session доменный объект сессии
+     */
     @Override
     public void save(Session session) {
         String sessionKey = sessionKey(session.getSessionId());
@@ -54,6 +79,14 @@ public class RedisSessionRepository implements SessionRepository {
         );
     }
 
+    /**
+     * Атомарно обновляет JWT ID (JTI) сессии при ротации Refresh токена.
+     * Защищает от Replay-атак: если токен попытаются использовать повторно с устаревшим JTI,
+     * валидация будет отклонена.
+     *
+     * @param sessionId идентификатор сессии
+     * @param jti       новый сгенерированный JTI
+     */
     @Override
     public void updateJti(UUID sessionId, UUID jti) {
         redisTemplate.opsForHash().put(
@@ -130,6 +163,20 @@ public class RedisSessionRepository implements SessionRepository {
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * Возвращает список всех активных сессий пользователя с отметкой текущей сессии.
+     * <p>
+     * Для максимальной производительности и исключения проблемы N+1 сетевых запросов:
+     * 1. Считывается список {@code sessionId} из Redis Set "user:{userId}".
+     * 2. Выполняется <b>Redis Pipeline</b> ({@code executePipelined}): все команды {@code HGETALL} для всех сессий
+     *    пакетируются и отправляются в Redis за один сетевой запрос.
+     * 3. Если по какому-либо ID хеш сессии вернул пустой результат (сессия истекла по TTL в Redis),
+     *    такие протухшие ID удаляются из Set пользователя (пакетная ленивая очистка).
+     *
+     * @param userId           идентификатор пользователя
+     * @param currentSessionId идентификатор текущей активной сессии из контекста запроса
+     * @return список DTO сессий с флагом isCurrent
+     */
     @Override
     public List<SessionResponse> findAllByUserId(
             Long userId,
@@ -203,6 +250,13 @@ public class RedisSessionRepository implements SessionRepository {
         return Objects.equals(savedUserId, userId.toString());
     }
 
+    /**
+     * Возвращает множество активных {@code sessionId} для пользователя с одновременной
+     * валидацией существования ключей в Redis через pipeline и удалением протухших сессий из Set.
+     *
+     * @param userId идентификатор пользователя
+     * @return множество валидных активных {@code sessionId}
+     */
     private Set<String> getAndCleanUpSessionsSet(Long userId) {
         String userKey = userKey(userId);
 
