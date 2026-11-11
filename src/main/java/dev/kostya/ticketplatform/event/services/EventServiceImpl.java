@@ -10,7 +10,7 @@ import dev.kostya.ticketplatform.common.dto.base.PageModel;
 import dev.kostya.ticketplatform.event.dto.response.EventDetailsResponse;
 import dev.kostya.ticketplatform.event.entity.Event;
 import dev.kostya.ticketplatform.common.enums.DeletedViewFilter;
-import dev.kostya.ticketplatform.event.exception.EntityNotFoundException;
+import dev.kostya.ticketplatform.common.exception.EntityNotFoundException;
 import dev.kostya.ticketplatform.event.mapper.EventMapper;
 import dev.kostya.ticketplatform.event.repositories.EventCatalogRepository;
 import dev.kostya.ticketplatform.event.repositories.EventRepository;

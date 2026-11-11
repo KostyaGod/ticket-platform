@@ -1,6 +1,8 @@
 package dev.kostya.ticketplatform.auth.exception;
 
-public class UserBlockedException extends RuntimeException {
+import dev.kostya.ticketplatform.common.exception.ForbiddenException;
+
+public class UserBlockedException extends ForbiddenException {
     public UserBlockedException() {
         super("User is blocked");
     }

@@ -1,6 +1,8 @@
 package dev.kostya.ticketplatform.auth.exception;
 
-public class InvalidCredentialsException extends RuntimeException {
+import dev.kostya.ticketplatform.common.exception.UnauthorizedException;
+
+public class InvalidCredentialsException extends UnauthorizedException {
     public InvalidCredentialsException() {
         super("Invalid credentials");
     }

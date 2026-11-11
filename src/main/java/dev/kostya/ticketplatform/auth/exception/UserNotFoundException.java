@@ -1,7 +1,9 @@
 package dev.kostya.ticketplatform.auth.exception;
 
-public class UserNotFoundException extends RuntimeException {
+import dev.kostya.ticketplatform.common.exception.EntityNotFoundException;
+
+public class UserNotFoundException extends EntityNotFoundException {
     public UserNotFoundException(Long id) {
-        super("User with this " + id + " does not exist.");
+        super("User", id);
     }
 }

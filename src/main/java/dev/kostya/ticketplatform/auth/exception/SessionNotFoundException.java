@@ -1,5 +1,9 @@
 package dev.kostya.ticketplatform.auth.exception;
 
-public class SessionNotFoundException extends RuntimeException {
-    public SessionNotFoundException() { super("Session not found or access denied."); }
+import dev.kostya.ticketplatform.common.exception.EntityNotFoundException;
+
+public class SessionNotFoundException extends EntityNotFoundException {
+    public SessionNotFoundException() {
+        super("Session not found or access denied.");
+    }
 }

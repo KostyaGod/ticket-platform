@@ -1,5 +1,9 @@
 package dev.kostya.ticketplatform.auth.exception;
 
-public class NewPasswordMatchesOldException extends RuntimeException {
-    public NewPasswordMatchesOldException() {super("The new password cannot be the same as your current password.");}
+import dev.kostya.ticketplatform.common.exception.BadRequestException;
+
+public class NewPasswordMatchesOldException extends BadRequestException {
+    public NewPasswordMatchesOldException() {
+        super("The new password cannot be the same as your current password.");
+    }
 }

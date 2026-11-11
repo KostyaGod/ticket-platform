@@ -1,7 +1,9 @@
 package dev.kostya.ticketplatform.auth.exception;
 
-public class UserNotDeletedException extends RuntimeException {
+import dev.kostya.ticketplatform.common.exception.EntityNotDeletedException;
+
+public class UserNotDeletedException extends EntityNotDeletedException {
     public UserNotDeletedException(Long id) {
-        super("User with id " + id + " is not deleted");
+        super("User", id);
     }
 }
