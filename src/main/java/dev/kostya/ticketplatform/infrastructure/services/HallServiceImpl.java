@@ -1,6 +1,6 @@
 package dev.kostya.ticketplatform.infrastructure.services;
 
-import dev.kostya.ticketplatform.infrastructure.dto.base.EntityReference;
+import dev.kostya.ticketplatform.common.dto.base.EntityReference;
 import dev.kostya.ticketplatform.infrastructure.dto.request.HallCreateRequest;
 import dev.kostya.ticketplatform.infrastructure.dto.request.HallFilter;
 import dev.kostya.ticketplatform.infrastructure.dto.request.HallUpdateRequest;

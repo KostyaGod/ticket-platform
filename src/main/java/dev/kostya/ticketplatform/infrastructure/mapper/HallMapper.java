@@ -1,5 +1,6 @@
 package dev.kostya.ticketplatform.infrastructure.mapper;
 
+import dev.kostya.ticketplatform.common.mapper.CentralMapperConfig;
 import dev.kostya.ticketplatform.infrastructure.dto.request.HallCreateRequest;
 import dev.kostya.ticketplatform.infrastructure.dto.request.HallUpdateRequest;
 import dev.kostya.ticketplatform.infrastructure.dto.response.HallDetailsResponse;

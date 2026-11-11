@@ -1,6 +1,7 @@
 package dev.kostya.ticketplatform.infrastructure.entity;
 
 import dev.kostya.ticketplatform.common.entity.SoftDeletableEntity;
+import dev.kostya.ticketplatform.common.entity.IdentifiableAndNamed;
 
 import jakarta.persistence.*;
 import lombok.Getter;

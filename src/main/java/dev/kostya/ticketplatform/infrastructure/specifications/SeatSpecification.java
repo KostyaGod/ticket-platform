@@ -2,7 +2,6 @@ package dev.kostya.ticketplatform.infrastructure.specifications;
 
 import dev.kostya.ticketplatform.infrastructure.dto.request.SeatFilter;
 import dev.kostya.ticketplatform.infrastructure.entity.Seat;
-import dev.kostya.ticketplatform.common.enums.DeletedViewFilter;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;

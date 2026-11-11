@@ -1,5 +1,6 @@
 package dev.kostya.ticketplatform.event.entity;
 
+import dev.kostya.ticketplatform.common.entity.IdentifiableAndNamed;
 import dev.kostya.ticketplatform.common.entity.SoftDeletableEntity;
 
 import jakarta.persistence.*;

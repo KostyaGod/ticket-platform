@@ -1,6 +1,6 @@
 package dev.kostya.ticketplatform.event.repositories;
 
-import dev.kostya.ticketplatform.event.dto.base.EntityReference;
+import dev.kostya.ticketplatform.common.dto.base.EntityReference;
 import dev.kostya.ticketplatform.event.entity.Event;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

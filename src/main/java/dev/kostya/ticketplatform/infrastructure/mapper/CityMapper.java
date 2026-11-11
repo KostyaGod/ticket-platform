@@ -1,5 +1,6 @@
 package dev.kostya.ticketplatform.infrastructure.mapper;
 
+import dev.kostya.ticketplatform.common.mapper.CentralMapperConfig;
 import dev.kostya.ticketplatform.infrastructure.dto.request.CityCreateRequest;
 import dev.kostya.ticketplatform.infrastructure.dto.request.CityUpdateRequest;
 import dev.kostya.ticketplatform.infrastructure.dto.response.CityDetailsResponse;

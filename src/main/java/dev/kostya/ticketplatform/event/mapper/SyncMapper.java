@@ -1,5 +1,6 @@
 package dev.kostya.ticketplatform.event.mapper;
 
+import dev.kostya.ticketplatform.common.mapper.CentralMapperConfig;
 import dev.kostya.ticketplatform.event.entity.CitySnapshot;
 import dev.kostya.ticketplatform.event.entity.HallSnapshot;
 import dev.kostya.ticketplatform.event.entity.VenueSnapshot;

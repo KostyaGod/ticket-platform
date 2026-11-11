@@ -1,7 +1,8 @@
 package dev.kostya.ticketplatform.event.repositories;
 
 import dev.kostya.ticketplatform.common.dto.base.EntityMetadata;
-import dev.kostya.ticketplatform.event.dto.base.EntityReference;
+import dev.kostya.ticketplatform.common.dto.base.EntityReference;
+import dev.kostya.ticketplatform.common.entity.IdentifiableAndNamed;
 import dev.kostya.ticketplatform.event.dto.response.SessionDetailsResponse;
 import dev.kostya.ticketplatform.event.dto.response.SessionShortResponse;
 import dev.kostya.ticketplatform.event.entity.*;
@@ -12,8 +13,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 public interface EventSessionRepository
@@ -98,4 +102,18 @@ public interface EventSessionRepository
                 )
         ));
     }
+
+    @Query("""
+        SELECT s.startAt
+        FROM EventSession s
+        WHERE s.event.id = :eventId
+          AND s.deletedAt IS null
+          AND s.startAt BETWEEN :from AND :to
+        ORDER BY s.startAt ASC
+        """)
+    List<Instant> findStartTimesByEventIdAndRange(
+            @Param("eventId") Long eventId,
+            @Param("from") Instant from,
+            @Param("to") Instant to
+    );
 }

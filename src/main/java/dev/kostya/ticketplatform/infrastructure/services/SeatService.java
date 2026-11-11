@@ -1,6 +1,6 @@
 package dev.kostya.ticketplatform.infrastructure.services;
 
-import dev.kostya.ticketplatform.infrastructure.dto.base.EntityReference;
+import dev.kostya.ticketplatform.common.dto.base.EntityReference;
 import dev.kostya.ticketplatform.infrastructure.dto.request.SeatCreateRequest;
 import dev.kostya.ticketplatform.infrastructure.dto.request.SeatFilter;
 import dev.kostya.ticketplatform.infrastructure.dto.request.SeatUpdateRequest;

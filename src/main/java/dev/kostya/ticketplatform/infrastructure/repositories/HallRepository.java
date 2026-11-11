@@ -1,6 +1,6 @@
 package dev.kostya.ticketplatform.infrastructure.repositories;
 
-import dev.kostya.ticketplatform.infrastructure.dto.base.EntityReference;
+import dev.kostya.ticketplatform.common.dto.base.EntityReference;
 import dev.kostya.ticketplatform.infrastructure.entity.Hall;
 import dev.kostya.ticketplatform.infrastructure.sync.dto.HallSyncDto;
 import org.springframework.data.domain.Page;

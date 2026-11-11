@@ -1,7 +1,7 @@
 package dev.kostya.ticketplatform.event.dto.response;
 
 import dev.kostya.ticketplatform.common.dto.base.EntityMetadata;
-import dev.kostya.ticketplatform.event.dto.base.EntityReference;
+import dev.kostya.ticketplatform.common.dto.base.EntityReference;
 import dev.kostya.ticketplatform.event.entity.*;
 import dev.kostya.ticketplatform.event.enums.EventSessionStatus;
 

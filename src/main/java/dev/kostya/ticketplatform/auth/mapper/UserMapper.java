@@ -7,6 +7,7 @@ import dev.kostya.ticketplatform.auth.dto.request.UpdateUserRequest;
 import dev.kostya.ticketplatform.auth.dto.response.UserResponse;
 import dev.kostya.ticketplatform.auth.entity.User;
 import dev.kostya.ticketplatform.auth.security.UserPrincipal;
+import dev.kostya.ticketplatform.common.mapper.CentralMapperConfig;
 import org.mapstruct.*;
 
 @Mapper(config = CentralMapperConfig.class)

@@ -1,6 +1,6 @@
 package dev.kostya.ticketplatform.infrastructure.services;
 
-import dev.kostya.ticketplatform.infrastructure.dto.base.EntityReference;
+import dev.kostya.ticketplatform.common.dto.base.EntityReference;
 import dev.kostya.ticketplatform.infrastructure.dto.request.CityCreateRequest;
 import dev.kostya.ticketplatform.infrastructure.dto.request.CityFilter;
 import dev.kostya.ticketplatform.infrastructure.dto.request.CityUpdateRequest;

@@ -1,9 +1,8 @@
-package dev.kostya.ticketplatform.infrastructure.dto.base;
+package dev.kostya.ticketplatform.common.dto.base;
 
-import dev.kostya.ticketplatform.infrastructure.entity.IdentifiableAndNamed;
+import dev.kostya.ticketplatform.common.entity.IdentifiableAndNamed;
 
-
-public record EntityReference<T extends IdentifiableAndNamed>(
+public record EntityReference <T extends IdentifiableAndNamed>(
         Long id,
         String name
 ) {

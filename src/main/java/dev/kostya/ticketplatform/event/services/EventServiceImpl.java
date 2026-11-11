@@ -1,6 +1,7 @@
 package dev.kostya.ticketplatform.event.services;
 
-import dev.kostya.ticketplatform.event.dto.base.EntityReference;
+import dev.kostya.ticketplatform.common.dto.base.EntityReference;
+import dev.kostya.ticketplatform.common.exception.EntityNotDeletedException;
 import dev.kostya.ticketplatform.event.dto.request.EventCatalogFilter;
 import dev.kostya.ticketplatform.event.dto.request.EventCreateRequest;
 import dev.kostya.ticketplatform.event.dto.request.EventFilter;
@@ -128,6 +129,10 @@ public class EventServiceImpl implements EventService {
     public EventDetailsResponse restore(Long id, boolean cascade) {
         Event event = eventRepository.findById( id )
                 .orElseThrow( () -> new EntityNotFoundException( "Event", id ) );
+
+        if ( !event.isDeleted() ) {
+            throw new EntityNotDeletedException( "Event", id );
+        }
 
         UUID operationId = event.restore();
 

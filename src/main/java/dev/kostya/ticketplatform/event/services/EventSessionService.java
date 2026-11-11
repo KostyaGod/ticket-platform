@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.List;
 
 public interface EventSessionService {
@@ -34,16 +35,17 @@ public interface EventSessionService {
     );
 
     List<LocalDate> getSessionDates(
-            Range<LocalDate> dateFilter,
+            Long eventId,
+            Range<Instant> dateFilter,
             Range<LocalTime> timeFilter,
-            Long eventId
+            ZoneId timezone
     );
 
     SessionDetailsResponse create(
             SessionCreateRequest request
     );
 
-    SessionUpdateRequest update(
+    SessionDetailsResponse update(
             Long id,
             SessionUpdateRequest request
     );

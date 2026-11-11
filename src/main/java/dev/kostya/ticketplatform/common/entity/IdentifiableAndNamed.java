@@ -1,4 +1,4 @@
-package dev.kostya.ticketplatform.infrastructure.entity;
+package dev.kostya.ticketplatform.common.entity;
 
 public interface IdentifiableAndNamed {
     Long getId();

@@ -1,6 +1,8 @@
 package dev.kostya.ticketplatform.event.mapper;
 
+import dev.kostya.ticketplatform.common.mapper.CentralMapperConfig;
 import dev.kostya.ticketplatform.event.dto.request.SessionCreateRequest;
+import dev.kostya.ticketplatform.event.dto.request.SessionUpdateRequest;
 import dev.kostya.ticketplatform.event.dto.response.SessionDetailsResponse;
 import dev.kostya.ticketplatform.event.dto.response.SessionShortResponse;
 import dev.kostya.ticketplatform.event.entity.EventSession;
@@ -16,7 +18,7 @@ public interface SessionMapper {
     @Mapping(target = "endAt", source = "sessionTimeRange.to")
     EventSession toEntity(SessionCreateRequest request);
 
-    SessionDetailsResponse toResponse(EventSession session);
+    SessionDetailsResponse toDetailsResponse(EventSession session);
 
     SessionShortResponse toShortResponse(EventSession session);
 
@@ -26,5 +28,5 @@ public interface SessionMapper {
     @Mapping(target = "startAt", source = "sessionTimeRange.from")
     @Mapping(target = "endAt", source = "sessionTimeRange.to")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateEntityFromDto(SessionCreateRequest request, @MappingTarget EventSession entity);
+    void updateEntityFromDto(SessionUpdateRequest request, @MappingTarget EventSession entity);
 }

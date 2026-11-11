@@ -1,6 +1,7 @@
 package dev.kostya.ticketplatform.infrastructure.mapper;
 
-import dev.kostya.ticketplatform.infrastructure.dto.base.EntityReference;
+import dev.kostya.ticketplatform.common.mapper.CentralMapperConfig;
+import dev.kostya.ticketplatform.common.dto.base.EntityReference;
 import dev.kostya.ticketplatform.infrastructure.dto.request.SeatCreateRequest;
 import dev.kostya.ticketplatform.infrastructure.dto.request.SeatUpdateRequest;
 import dev.kostya.ticketplatform.infrastructure.dto.response.SeatDetailsResponse;

@@ -1,11 +1,12 @@
 package dev.kostya.ticketplatform.event.mapper;
 
-import dev.kostya.ticketplatform.event.dto.base.EntityReference;
+import dev.kostya.ticketplatform.common.dto.base.EntityReference;
+import dev.kostya.ticketplatform.common.mapper.CentralMapperConfig;
 import dev.kostya.ticketplatform.event.dto.request.EventCreateRequest;
 import dev.kostya.ticketplatform.event.dto.request.EventUpdateRequest;
 import dev.kostya.ticketplatform.event.dto.response.EventDetailsResponse;
 import dev.kostya.ticketplatform.event.entity.Event;
-import dev.kostya.ticketplatform.event.entity.IdentifiableAndNamed;
+import dev.kostya.ticketplatform.common.entity.IdentifiableAndNamed;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;

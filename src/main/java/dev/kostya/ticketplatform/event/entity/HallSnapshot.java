@@ -1,5 +1,6 @@
 package dev.kostya.ticketplatform.event.entity;
 
+import dev.kostya.ticketplatform.common.entity.IdentifiableAndNamed;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

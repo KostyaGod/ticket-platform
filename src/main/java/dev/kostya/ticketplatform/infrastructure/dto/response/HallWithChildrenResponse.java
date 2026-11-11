@@ -1,7 +1,7 @@
 package dev.kostya.ticketplatform.infrastructure.dto.response;
 
 import dev.kostya.ticketplatform.common.dto.base.EntityMetadata;
-import dev.kostya.ticketplatform.infrastructure.dto.base.EntityReference;
+import dev.kostya.ticketplatform.common.dto.base.EntityReference;
 import dev.kostya.ticketplatform.infrastructure.entity.Hall;
 import dev.kostya.ticketplatform.infrastructure.entity.Seat;
 import dev.kostya.ticketplatform.infrastructure.entity.Venue;

@@ -9,7 +9,7 @@ public record SessionUpdateRequest(
         @Positive(message = "Event ID must be positive")
         Long eventId,
 
-        EventSessionStatus status,
+        EventSessionStatus eventStatus,
 
         Range<Instant> salesTimeRange,
 
