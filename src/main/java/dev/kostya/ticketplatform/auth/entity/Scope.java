@@ -1,6 +1,6 @@
 package dev.kostya.ticketplatform.auth.entity;
 
-import dev.kostya.ticketplatform.auth.enums.EntityStatus;
+import dev.kostya.ticketplatform.common.enums.EntityStatus;
 import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

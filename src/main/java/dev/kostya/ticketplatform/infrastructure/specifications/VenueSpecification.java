@@ -6,7 +6,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
-import static dev.kostya.ticketplatform.infrastructure.specifications.SpecificationSupport.*;
+import static dev.kostya.ticketplatform.common.specifications.SpecificationSupport.*;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class VenueSpecification {

@@ -1,4 +1,4 @@
-package dev.kostya.ticketplatform.event.dto.base;
+package dev.kostya.ticketplatform.common.dto.base;
 
 import org.springframework.data.domain.Page;
 

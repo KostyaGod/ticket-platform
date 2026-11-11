@@ -5,7 +5,7 @@ import dev.kostya.ticketplatform.auth.entity.User;
 import lombok.experimental.UtilityClass;
 import org.springframework.data.jpa.domain.Specification;
 
-import static dev.kostya.ticketplatform.auth.specifications.SpecificationSupport.*;
+import static dev.kostya.ticketplatform.common.specifications.SpecificationSupport.*;
 
 @UtilityClass
 public class UserSpecification {

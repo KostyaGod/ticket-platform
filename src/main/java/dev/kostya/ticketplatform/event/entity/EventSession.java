@@ -1,5 +1,7 @@
 package dev.kostya.ticketplatform.event.entity;
 
+import dev.kostya.ticketplatform.common.entity.SoftDeletableEntity;
+
 import dev.kostya.ticketplatform.event.enums.EventSessionStatus;
 import jakarta.persistence.*;
 import lombok.Getter;

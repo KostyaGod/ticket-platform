@@ -1,13 +1,13 @@
 package dev.kostya.ticketplatform.event.services;
 
-import dev.kostya.ticketplatform.event.dto.base.PageModel;
-import dev.kostya.ticketplatform.event.dto.base.Range;
+import dev.kostya.ticketplatform.common.dto.base.PageModel;
+import dev.kostya.ticketplatform.common.dto.base.Range;
 import dev.kostya.ticketplatform.event.dto.request.SessionCreateRequest;
 import dev.kostya.ticketplatform.event.dto.request.SessionFilter;
 import dev.kostya.ticketplatform.event.dto.request.SessionUpdateRequest;
 import dev.kostya.ticketplatform.event.dto.response.SessionDetailsResponse;
 import dev.kostya.ticketplatform.event.dto.response.SessionShortResponse;
-import dev.kostya.ticketplatform.event.enums.DeletedViewFilter;
+import dev.kostya.ticketplatform.common.enums.DeletedViewFilter;
 import org.springframework.data.domain.Pageable;
 
 import java.time.Instant;

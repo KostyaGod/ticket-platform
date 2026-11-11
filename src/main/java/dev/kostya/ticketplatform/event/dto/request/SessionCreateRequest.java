@@ -1,6 +1,6 @@
 package dev.kostya.ticketplatform.event.dto.request;
 
-import dev.kostya.ticketplatform.event.dto.base.Range;
+import dev.kostya.ticketplatform.common.dto.base.Range;
 import dev.kostya.ticketplatform.event.enums.EventSessionStatus;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

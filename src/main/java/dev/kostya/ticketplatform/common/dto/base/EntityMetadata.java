@@ -1,7 +1,7 @@
-package dev.kostya.ticketplatform.auth.dto.base;
+package dev.kostya.ticketplatform.common.dto.base;
 
-import dev.kostya.ticketplatform.auth.entity.SoftDeletableEntity;
-import dev.kostya.ticketplatform.auth.enums.EntityStatus;
+import dev.kostya.ticketplatform.common.entity.SoftDeletableEntity;
+import dev.kostya.ticketplatform.common.enums.EntityStatus;
 
 import java.time.Instant;
 import java.util.UUID;

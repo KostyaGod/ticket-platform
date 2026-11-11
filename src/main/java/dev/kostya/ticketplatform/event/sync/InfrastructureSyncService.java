@@ -1,6 +1,6 @@
 package dev.kostya.ticketplatform.event.sync;
 
-import dev.kostya.ticketplatform.event.dto.base.PageModel;
+import dev.kostya.ticketplatform.common.dto.base.PageModel;
 import dev.kostya.ticketplatform.event.services.InfrastructureSnapshotService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
 package dev.kostya.ticketplatform.event.sync;
 
-import dev.kostya.ticketplatform.event.dto.base.PageMeta;
-import dev.kostya.ticketplatform.event.dto.base.PageModel;
+import dev.kostya.ticketplatform.common.dto.base.PageMeta;
+import dev.kostya.ticketplatform.common.dto.base.PageModel;
 import dev.kostya.ticketplatform.event.sync.dto.CitySnapshotDto;
 import dev.kostya.ticketplatform.event.sync.dto.HallSnapshotDto;
 import dev.kostya.ticketplatform.event.sync.dto.VenueSnapshotDto;
@@ -25,7 +25,7 @@ public class LocalInfrastructureDataProvider implements InfrastructureDataProvid
     public PageModel<CitySnapshotDto> getCities(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
-        dev.kostya.ticketplatform.infrastructure.dto.base.PageModel<CitySyncDto> response =
+        dev.kostya.ticketplatform.common.dto.base.PageModel<CitySyncDto> response =
                 integrationController.getCities( pageable );
 
         List<CitySnapshotDto> context = response.model().stream()
@@ -51,7 +51,7 @@ public class LocalInfrastructureDataProvider implements InfrastructureDataProvid
     public PageModel<VenueSnapshotDto> getVenues(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
-        dev.kostya.ticketplatform.infrastructure.dto.base.PageModel<VenueSyncDto> response =
+        dev.kostya.ticketplatform.common.dto.base.PageModel<VenueSyncDto> response =
                 integrationController.getVenues( pageable );
 
         List<VenueSnapshotDto> context = response.model().stream()
@@ -78,7 +78,7 @@ public class LocalInfrastructureDataProvider implements InfrastructureDataProvid
     public PageModel<HallSnapshotDto> getHalls(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
-        dev.kostya.ticketplatform.infrastructure.dto.base.PageModel<HallSyncDto> response =
+        dev.kostya.ticketplatform.common.dto.base.PageModel<HallSyncDto> response =
                 integrationController.getHalls( pageable );
 
         List<HallSnapshotDto> context = response.model().stream()

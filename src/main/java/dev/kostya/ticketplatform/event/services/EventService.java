@@ -6,10 +6,10 @@ import dev.kostya.ticketplatform.event.dto.request.EventCreateRequest;
 import dev.kostya.ticketplatform.event.dto.request.EventFilter;
 import dev.kostya.ticketplatform.event.dto.request.EventUpdateRequest;
 import dev.kostya.ticketplatform.event.dto.response.EventCatalogResponse;
-import dev.kostya.ticketplatform.event.dto.base.PageModel;
+import dev.kostya.ticketplatform.common.dto.base.PageModel;
 import dev.kostya.ticketplatform.event.dto.response.EventDetailsResponse;
 import dev.kostya.ticketplatform.event.entity.Event;
-import dev.kostya.ticketplatform.event.enums.DeletedViewFilter;
+import dev.kostya.ticketplatform.common.enums.DeletedViewFilter;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,6 +1,6 @@
 package dev.kostya.ticketplatform.event.dto.request;
 
-import dev.kostya.ticketplatform.event.enums.EntityStatus;
+import dev.kostya.ticketplatform.common.enums.EntityStatus;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;

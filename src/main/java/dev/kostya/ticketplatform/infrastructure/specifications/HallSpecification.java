@@ -6,9 +6,9 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
-import static dev.kostya.ticketplatform.infrastructure.specifications.SpecificationSupport.filterByMetadata;
-import static dev.kostya.ticketplatform.infrastructure.specifications.SpecificationSupport.stringContains;
-import static dev.kostya.ticketplatform.infrastructure.specifications.SpecificationSupport.equalTo;
+import static dev.kostya.ticketplatform.common.specifications.SpecificationSupport.filterByMetadata;
+import static dev.kostya.ticketplatform.common.specifications.SpecificationSupport.stringContains;
+import static dev.kostya.ticketplatform.common.specifications.SpecificationSupport.equalTo;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class HallSpecification {

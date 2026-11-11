@@ -1,4 +1,4 @@
-package dev.kostya.ticketplatform.auth.entity;
+package dev.kostya.ticketplatform.common.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
@@ -10,10 +10,11 @@ import lombok.experimental.SuperBuilder;
 import java.time.Instant;
 import java.util.UUID;
 
-@Setter @Getter
+@Getter
+@Setter
 @MappedSuperclass
-@SuperBuilder
 @NoArgsConstructor
+@SuperBuilder
 public abstract class SoftDeletableEntity extends BaseAuditEntity {
 
     @Column(name = "deleted_at")
@@ -32,18 +33,15 @@ public abstract class SoftDeletableEntity extends BaseAuditEntity {
     }
 
     public UUID markDeleted() {
-        UUID deletionOperationId = UUID.randomUUID();
-        markDeleted(deletionOperationId);
-
-        return deletionOperationId;
+        UUID operationId = UUID.randomUUID();
+        markDeleted(operationId);
+        return operationId;
     }
 
     public UUID restore() {
-        UUID deletionOperationId = this.deletionOperationId;
-
+        UUID operationId = this.deletionOperationId;
         this.deletedAt = null;
         this.deletionOperationId = null;
-
-        return deletionOperationId;
+        return operationId;
     }
 }

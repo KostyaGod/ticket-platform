@@ -1,6 +1,6 @@
 package dev.kostya.ticketplatform.auth.dto.request;
 
-import dev.kostya.ticketplatform.auth.dto.base.EntityMetadataFilter;
+import dev.kostya.ticketplatform.common.dto.base.EntityMetadataFilter;
 import dev.kostya.ticketplatform.auth.enums.Role;
 import dev.kostya.ticketplatform.auth.enums.UserStatus;
 

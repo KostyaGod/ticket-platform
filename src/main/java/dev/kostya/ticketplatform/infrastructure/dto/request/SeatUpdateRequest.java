@@ -1,6 +1,6 @@
 package dev.kostya.ticketplatform.infrastructure.dto.request;
 
-import dev.kostya.ticketplatform.infrastructure.enums.EntityStatus;
+import dev.kostya.ticketplatform.common.enums.EntityStatus;
 
 public record SeatUpdateRequest(
         Long hallId,

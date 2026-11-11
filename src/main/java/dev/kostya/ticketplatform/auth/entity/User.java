@@ -1,6 +1,8 @@
 package dev.kostya.ticketplatform.auth.entity;
 
 import dev.kostya.ticketplatform.auth.enums.*;
+import dev.kostya.ticketplatform.common.entity.SoftDeletableEntity;
+import dev.kostya.ticketplatform.common.enums.EntityStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;

@@ -1,6 +1,6 @@
 package dev.kostya.ticketplatform.event.dto.response;
 
-import dev.kostya.ticketplatform.event.dto.base.EntityMetadata;
+import dev.kostya.ticketplatform.common.dto.base.EntityMetadata;
 import dev.kostya.ticketplatform.event.entity.Event;
 
 import java.time.LocalDate;

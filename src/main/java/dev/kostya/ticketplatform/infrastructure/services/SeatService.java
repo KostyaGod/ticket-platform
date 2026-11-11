@@ -4,7 +4,7 @@ import dev.kostya.ticketplatform.infrastructure.dto.base.EntityReference;
 import dev.kostya.ticketplatform.infrastructure.dto.request.SeatCreateRequest;
 import dev.kostya.ticketplatform.infrastructure.dto.request.SeatFilter;
 import dev.kostya.ticketplatform.infrastructure.dto.request.SeatUpdateRequest;
-import dev.kostya.ticketplatform.infrastructure.dto.base.PageModel;
+import dev.kostya.ticketplatform.common.dto.base.PageModel;
 import dev.kostya.ticketplatform.infrastructure.dto.response.SeatDetailsResponse;
 import dev.kostya.ticketplatform.infrastructure.entity.Seat;
 import org.springframework.data.domain.Pageable;

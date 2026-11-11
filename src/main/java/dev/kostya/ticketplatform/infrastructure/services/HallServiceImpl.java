@@ -4,7 +4,7 @@ import dev.kostya.ticketplatform.infrastructure.dto.base.EntityReference;
 import dev.kostya.ticketplatform.infrastructure.dto.request.HallCreateRequest;
 import dev.kostya.ticketplatform.infrastructure.dto.request.HallFilter;
 import dev.kostya.ticketplatform.infrastructure.dto.request.HallUpdateRequest;
-import dev.kostya.ticketplatform.infrastructure.dto.base.PageModel;
+import dev.kostya.ticketplatform.common.dto.base.PageModel;
 import dev.kostya.ticketplatform.infrastructure.dto.response.HallDetailsResponse;
 import dev.kostya.ticketplatform.infrastructure.dto.response.HallWithChildrenResponse;
 import dev.kostya.ticketplatform.infrastructure.entity.Hall;

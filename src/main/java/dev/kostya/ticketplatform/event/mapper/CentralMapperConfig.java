@@ -1,9 +1,9 @@
 package dev.kostya.ticketplatform.event.mapper;
 
-import dev.kostya.ticketplatform.event.dto.base.EntityMetadata;
+import dev.kostya.ticketplatform.common.dto.base.EntityMetadata;
 import dev.kostya.ticketplatform.event.dto.base.EntityReference;
 import dev.kostya.ticketplatform.event.entity.IdentifiableAndNamed;
-import dev.kostya.ticketplatform.event.entity.SoftDeletableEntity;
+import dev.kostya.ticketplatform.common.entity.SoftDeletableEntity;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.MapperConfig;
 import org.mapstruct.ReportingPolicy;

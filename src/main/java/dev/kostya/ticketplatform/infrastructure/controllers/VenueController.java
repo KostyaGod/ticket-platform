@@ -1,6 +1,6 @@
 package dev.kostya.ticketplatform.infrastructure.controllers;
 
-import dev.kostya.ticketplatform.infrastructure.dto.base.PageModel;
+import dev.kostya.ticketplatform.common.dto.base.PageModel;
 import dev.kostya.ticketplatform.infrastructure.dto.base.EntityReference;
 import dev.kostya.ticketplatform.infrastructure.dto.request.VenueCreateRequest;
 import dev.kostya.ticketplatform.infrastructure.dto.request.VenueFilter;

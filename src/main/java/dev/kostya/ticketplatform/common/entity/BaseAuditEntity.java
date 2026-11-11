@@ -1,6 +1,6 @@
-package dev.kostya.ticketplatform.auth.entity;
+package dev.kostya.ticketplatform.common.entity;
 
-import dev.kostya.ticketplatform.auth.enums.EntityStatus;
+import dev.kostya.ticketplatform.common.enums.EntityStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -12,17 +12,17 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
 
-@Getter @Setter
+@Getter
+@Setter
 @MappedSuperclass
 @NoArgsConstructor
 @SuperBuilder
 public abstract class BaseAuditEntity {
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     protected EntityStatus status;
 
-    @Column(name = "created_at", nullable = false,
-            insertable = false, updatable = false
-    )
+    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     protected Instant createdAt;
 }

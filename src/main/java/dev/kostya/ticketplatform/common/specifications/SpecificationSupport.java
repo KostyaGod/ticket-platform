@@ -1,14 +1,13 @@
-package dev.kostya.ticketplatform.infrastructure.specifications;
+package dev.kostya.ticketplatform.common.specifications;
 
-import dev.kostya.ticketplatform.infrastructure.entity.SoftDeletableEntity;
-import dev.kostya.ticketplatform.infrastructure.enums.DeletedViewFilter;
-import dev.kostya.ticketplatform.infrastructure.dto.base.EntityMetadataFilter;
-import dev.kostya.ticketplatform.infrastructure.dto.base.Range;
+import dev.kostya.ticketplatform.common.dto.base.EntityMetadataFilter;
+import dev.kostya.ticketplatform.common.dto.base.Range;
+import dev.kostya.ticketplatform.common.entity.SoftDeletableEntity;
+import dev.kostya.ticketplatform.common.enums.DeletedViewFilter;
 import jakarta.persistence.criteria.Path;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
-
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SpecificationSupport {
@@ -39,9 +38,9 @@ public final class SpecificationSupport {
         return (root, query, cb) -> {
             Path<?> path = root;
             for (String part : field.split("\\.")) {
-                path = path.get( part );
+                path = path.get(part);
             }
-            return cb.equal( path, value );
+            return cb.equal(path, value);
         };
     }
 
@@ -99,20 +98,21 @@ public final class SpecificationSupport {
         if (range == null) {
             return Specification.unrestricted();
         }
-        return between( field, range.from(), range.to() );
+        return between(field, range.from(), range.to());
     }
 
     public static <T extends SoftDeletableEntity> Specification<T> filterByDeleted(
             DeletedViewFilter filter
     ) {
-        if (filter == null)
-            return (root, query, cb) -> cb.isNull( root.get("deletedAt") );
-        else if (filter.equals( DeletedViewFilter.ALL ))
+        if (filter == null) {
+            return (root, query, cb) -> cb.isNull(root.get("deletedAt"));
+        } else if (filter.equals(DeletedViewFilter.ALL)) {
             return Specification.unrestricted();
+        }
 
         return (root, query, cb) -> switch (filter) {
-            case ACTIVE_ONLY -> cb.isNull( root.get("deletedAt") );
-            case DELETED_ONLY -> cb.isNotNull( root.get("deletedAt") );
+            case ACTIVE_ONLY -> cb.isNull(root.get("deletedAt"));
+            case DELETED_ONLY -> cb.isNotNull(root.get("deletedAt"));
             default -> null;
         };
     }
@@ -120,17 +120,19 @@ public final class SpecificationSupport {
     public static <T extends SoftDeletableEntity> Specification<T> filterByMetadata(
             EntityMetadataFilter filter
     ) {
-        if (filter == null) return Specification.unrestricted();
+        if (filter == null) {
+            return Specification.unrestricted();
+        }
 
         Specification<T> specification = Specification.allOf(
-                equalTo( "status", filter.status() ),
-                between( "createdAt", filter.createdAtRange() ),
-                filterByDeleted( filter.deletedFilter() )
+                equalTo("status", filter.status()),
+                between("createdAt", filter.createdAtRange()),
+                filterByDeleted(filter.deletedFilter())
         );
 
-        if (filter.deletedFilter() != null && filter.deletedFilter().equals( DeletedViewFilter.DELETED_ONLY )) {
+        if (filter.deletedFilter() != null && filter.deletedFilter().equals(DeletedViewFilter.DELETED_ONLY)) {
             specification = specification
-                    .and( between( "deletedAt", filter.deletedAtRange() ) );
+                    .and(between("deletedAt", filter.deletedAtRange()));
         }
 
         return specification;

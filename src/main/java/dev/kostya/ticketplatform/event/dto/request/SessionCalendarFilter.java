@@ -1,6 +1,6 @@
 package dev.kostya.ticketplatform.event.dto.request;
 
-import dev.kostya.ticketplatform.event.dto.base.Range;
+import dev.kostya.ticketplatform.common.dto.base.Range;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

@@ -1,16 +1,16 @@
 package dev.kostya.ticketplatform.event.specifications;
 
-import dev.kostya.ticketplatform.event.dto.base.Range;
+import dev.kostya.ticketplatform.common.dto.base.Range;
 import dev.kostya.ticketplatform.event.dto.request.SessionFilter;
 import dev.kostya.ticketplatform.event.entity.EventSession;
-import dev.kostya.ticketplatform.event.enums.DeletedViewFilter;
+import dev.kostya.ticketplatform.common.enums.DeletedViewFilter;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.Instant;
 
-import static dev.kostya.ticketplatform.event.specifications.SpecificationSupport.*;
+import static dev.kostya.ticketplatform.common.specifications.SpecificationSupport.*;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class EventSessionSpecification {

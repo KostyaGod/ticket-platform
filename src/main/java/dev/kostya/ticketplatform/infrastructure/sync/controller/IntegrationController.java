@@ -1,6 +1,6 @@
 package dev.kostya.ticketplatform.infrastructure.sync.controller;
 
-import dev.kostya.ticketplatform.infrastructure.dto.base.PageModel;
+import dev.kostya.ticketplatform.common.dto.base.PageModel;
 import dev.kostya.ticketplatform.infrastructure.sync.dto.SeatSyncDto;
 import dev.kostya.ticketplatform.infrastructure.sync.service.SyncService;
 import dev.kostya.ticketplatform.infrastructure.sync.dto.CitySyncDto;

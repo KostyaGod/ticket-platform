@@ -5,7 +5,7 @@ import dev.kostya.ticketplatform.infrastructure.dto.request.CityCreateRequest;
 import dev.kostya.ticketplatform.infrastructure.dto.request.CityFilter;
 import dev.kostya.ticketplatform.infrastructure.dto.request.CityUpdateRequest;
 import dev.kostya.ticketplatform.infrastructure.dto.response.CityDetailsResponse;
-import dev.kostya.ticketplatform.infrastructure.dto.base.PageModel;
+import dev.kostya.ticketplatform.common.dto.base.PageModel;
 import dev.kostya.ticketplatform.infrastructure.dto.response.CityWithChildrenResponse;
 import dev.kostya.ticketplatform.infrastructure.entity.City;
 import dev.kostya.ticketplatform.infrastructure.services.CityService;

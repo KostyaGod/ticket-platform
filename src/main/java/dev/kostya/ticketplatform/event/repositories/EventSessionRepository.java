@@ -1,11 +1,11 @@
 package dev.kostya.ticketplatform.event.repositories;
 
-import dev.kostya.ticketplatform.event.dto.base.EntityMetadata;
+import dev.kostya.ticketplatform.common.dto.base.EntityMetadata;
 import dev.kostya.ticketplatform.event.dto.base.EntityReference;
 import dev.kostya.ticketplatform.event.dto.response.SessionDetailsResponse;
 import dev.kostya.ticketplatform.event.dto.response.SessionShortResponse;
 import dev.kostya.ticketplatform.event.entity.*;
-import dev.kostya.ticketplatform.event.enums.EntityStatus;
+import dev.kostya.ticketplatform.common.enums.EntityStatus;
 import dev.kostya.ticketplatform.event.enums.EventSessionStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
